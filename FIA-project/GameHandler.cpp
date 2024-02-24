@@ -19,11 +19,15 @@ GameHandler::GameHandler(int mapSizeX, int mapSizeY, float gridSize, bool gridMo
     appleTile = new sf::RectangleShape(sf::Vector2f(this->gridSize, this->gridSize));
     appleTile->setFillColor(sf::Color(255, 0, 0));
 
+    //wall tile definition
+    wallTile = new sf::RectangleShape(sf::Vector2f(this->gridSize, this->gridSize));
+    wallTile->setFillColor(sf::Color(255, 255, 255));
+
     //error tile definition
     errorTile = new sf::RectangleShape(sf::Vector2f(this->gridSize, this->gridSize));
     errorTile->setFillColor(sf::Color(0, 0, 255));
 
-    //testing tile definition
+    //grid tile definition
     testingTile = new sf::RectangleShape(sf::Vector2f(this->gridSize, this->gridSize));
     testingTile->setFillColor(sf::Color(0, 0, 0, 255));
     testingTile->setOutlineThickness(-0.5f);
@@ -34,16 +38,28 @@ GameHandler::GameHandler(int mapSizeX, int mapSizeY, float gridSize, bool gridMo
     for (int x = 0; x < mapSizeX; x++)
         gameMap[x] = new int[mapSizeY];
     
+    //first row walls
     for (int x = 0; x < mapSizeX; x++)
-        for (int y = 0; y < mapSizeY; y++)
-            gameMap[x][y] = Tile::Empty;
+        gameMap[x][0] = Tile::Wall;
+
+    //center
+    for (int x = 1; x < mapSizeX - 1; x++) {
+        for (int y = 0; y < mapSizeY; y++) {
+            if (y == 0 || y == mapSizeY - 1)
+                gameMap[x][y] = Tile::Wall;
+            else
+                gameMap[x][y] = Tile::Empty;
+        }
+    }     
+
+    //last row walls
+    for (int x = 0; x < mapSizeX; x++)
+        gameMap[x][mapSizeY - 1] = Tile::Wall;
 
     //spawn snake in the center of the map
-    snake.headPosition.x = mapSizeX / 2;
-    snake.headPosition.y = mapSizeY / 2;
-    snake.tailPosition.x = snake.headPosition.x;
-    snake.tailPosition.y = snake.headPosition.y;
-    gameMap[snake.headPosition.x][snake.headPosition.y] = Tile::SnakeHead;
+    snake.snakePart->push_front(*new Position(mapSizeX / 2, mapSizeY / 2));
+    gameMap[snake.snakePart->front().x][snake.snakePart->front().y] = Tile::SnakeBody;
+
 
     //spawn first apple in random position
     spawnApple();
@@ -60,31 +76,19 @@ GameHandler::~GameHandler() {
 }
 
 void GameHandler::moveSnakeUp() {
-    if (snake.headPosition.y == 0) //movement not possible
-        return;
-
-    moveSnake(snake.headPosition.x, snake.headPosition.y - 1);
+    moveSnake(snake.snakePart->front().x, snake.snakePart->front().y - 1);
 }
 
 void GameHandler::moveSnakeDown() {
-    if (snake.headPosition.y == mapSizeY - 1) //movement not possible
-        return;
-
-    moveSnake(snake.headPosition.x, snake.headPosition.y + 1);
+    moveSnake(snake.snakePart->front().x, snake.snakePart->front().y + 1);
 }
 
 void GameHandler::moveSnakeLeft() {
-    if (snake.headPosition.x == 0) //movement not possible
-        return;
-
-    moveSnake(snake.headPosition.x - 1, snake.headPosition.y);
+    moveSnake(snake.snakePart->front().x - 1, snake.snakePart->front().y);
 }
 
 void GameHandler::moveSnakeRight() {
-    if (snake.headPosition.x == mapSizeX - 1) //movement not possible
-        return;
-
-    moveSnake(snake.headPosition.x + 1, snake.headPosition.y);
+    moveSnake(snake.snakePart->front().x + 1, snake.snakePart->front().y);
 }
 
 void GameHandler::drawMap(sf::RenderWindow *window) {
@@ -103,9 +107,11 @@ void GameHandler::drawMap(sf::RenderWindow *window) {
                 toBeDrawnTile = appleTile;
                 break;
 
-            case Tile::SnakeHead:
+            case Tile::Wall: //apple tile
+                toBeDrawnTile = wallTile;
+                break;
+
             case Tile::SnakeBody:
-            case Tile::SnakeTail:
                 toBeDrawnTile = snakeTile;
                 break;
 
@@ -122,6 +128,7 @@ void GameHandler::drawMap(sf::RenderWindow *window) {
 void GameHandler::spawnApple() {
     srand(time(NULL));
 
+    apple.isSpawned = false;
     while (!apple.isSpawned){
         apple.position.x = rand() % mapSizeX;
         apple.position.y = rand() % mapSizeY;
@@ -138,82 +145,20 @@ void GameHandler::moveSnake(int x, int y) {
     if (gameMap[x][y] != Tile::Empty && gameMap[x][y] != Tile::Apple) //invalid move, next tile is not empty(0)
         return;
 
-    bool appleEaten = false;
-    bool leftIsOutOfMap = false;
-    bool upIsOutOfMap = false;
-    bool rightIsOutOfMap = false;
-    bool downIsOutOfMap = false;
-
     if (gameMap[x][y] == Tile::Apple) {
-        snake.lenght++;
-        appleEaten = true;
-        apple.isSpawned = false;
-    }
-
-    //check if apple eaten
-    if (appleEaten) {
-        //add body
-        if (snake.lenght > 1)
-            gameMap[snake.headPosition.x][snake.headPosition.y] = Tile::SnakeBody;
-        else
-            gameMap[snake.headPosition.x][snake.headPosition.y] = Tile::SnakeTail;
-
         //move head
-        snake.headPosition.x = x;
-        snake.headPosition.y = y;
-        gameMap[x][y] = Tile::SnakeHead;
+        gameMap[x][y] = Tile::SnakeBody;
+
+        snake.snakePart->push_front(*new Position(x, y));
 
         spawnApple();
     }
     else {
         //move head
-        gameMap[snake.headPosition.x][snake.headPosition.y] = Tile::SnakeBody;
-        snake.headPosition.x = x;
-        snake.headPosition.y = y;
-        gameMap[x][y] = Tile::SnakeHead;
+        gameMap[snake.snakePart->back().x][snake.snakePart->back().y] = Tile::Empty;
+        gameMap[x][y] = Tile::SnakeBody;
 
-        //move tail
-        //clean old tail from map
-        gameMap[snake.tailPosition.x][snake.tailPosition.y] = Tile::Empty;
-        
-        //check around for direction
-        if (snake.tailPosition.x == 0)
-            leftIsOutOfMap = true;
-        else if (snake.tailPosition.x == mapSizeX - 1)
-            rightIsOutOfMap = true;
-
-        if (snake.tailPosition.y == 0)
-            upIsOutOfMap = true;
-        else if (snake.tailPosition.y == mapSizeY - 1)
-            downIsOutOfMap = true;
-         
-        //left
-
-        if (!leftIsOutOfMap && gameMap[snake.tailPosition.x - 1][snake.tailPosition.y] == Tile::SnakeBody) {
-            snake.tailPosition.x = snake.tailPosition.x - 1;
-            snake.tailPosition.y = snake.tailPosition.y;
-            gameMap[snake.tailPosition.x][snake.tailPosition.y] = Tile::SnakeTail;
-        }
-
-        //top
-        else if (!upIsOutOfMap && gameMap[snake.tailPosition.x][snake.tailPosition.y - 1] == Tile::SnakeBody) {
-            snake.tailPosition.x = snake.tailPosition.x;
-            snake.tailPosition.y = snake.tailPosition.y - 1;
-            gameMap[snake.tailPosition.x][snake.tailPosition.y] = Tile::SnakeTail;
-        }
-
-        //right
-        else if (!rightIsOutOfMap && gameMap[snake.tailPosition.x + 1][snake.tailPosition.y] == Tile::SnakeBody) {
-            snake.tailPosition.x = snake.tailPosition.x + 1;
-            snake.tailPosition.y = snake.tailPosition.y;
-            gameMap[snake.tailPosition.x][snake.tailPosition.y] = Tile::SnakeTail;
-        }
-
-        //down
-        else if (!downIsOutOfMap && gameMap[snake.tailPosition.x][snake.tailPosition.y + 1] == Tile::SnakeBody) {
-            snake.tailPosition.x = snake.tailPosition.x;
-            snake.tailPosition.y = snake.tailPosition.y + 1;
-            gameMap[snake.tailPosition.x][snake.tailPosition.y] = Tile::SnakeTail;
-        }
+        snake.snakePart->pop_back();
+        snake.snakePart->push_front(*new Position(x, y));
     }
 }

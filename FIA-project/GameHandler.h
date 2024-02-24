@@ -1,32 +1,40 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <list>
 
 
 class GameHandler
 {
 private:
 	enum Tile : int {
+		Wall = -1,
 		Empty = 0,
 		Apple = 1,
-		SnakeHead = 2,
-		SnakeBody = 3,
-		SnakeTail = 4
+		SnakeBody = 2,
 	};
 
 	struct Position {
 		int x;
 		int y;
+
+		Position() {
+			this->x = 0;
+			this->y = 0;
+		}
+
+		Position(int x, int y) {
+			this->x = x;
+			this->y = y;
+		}
 	};
 
 	struct Apple {
-		bool isSpawned = false;
+		bool isSpawned;
 		Position position;
 	} apple;
 
 	struct Snake {
-		Position headPosition;
-		Position tailPosition;
-		int lenght = 0;
+		std::list<Position> *snakePart = new std::list<Position>();
 	} snake;
 
 	int** gameMap;
@@ -37,6 +45,7 @@ private:
 
 	sf::RectangleShape *snakeTile;
 	sf::RectangleShape *appleTile;
+	sf::RectangleShape* wallTile;
 	sf::RectangleShape *errorTile;
 	sf::RectangleShape *testingTile;
 
