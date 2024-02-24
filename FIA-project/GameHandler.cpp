@@ -28,38 +28,42 @@ GameHandler::GameHandler(int mapSizeX, int mapSizeY, float gridSize, bool gridMo
     errorTile->setFillColor(sf::Color(0, 0, 255));
 
     //grid tile definition
-    testingTile = new sf::RectangleShape(sf::Vector2f(this->gridSize, this->gridSize));
-    testingTile->setFillColor(sf::Color(0, 0, 0, 255));
-    testingTile->setOutlineThickness(-0.5f);
-    testingTile->setOutlineColor(sf::Color(145, 145, 145));
+    emptyTile = new sf::RectangleShape(sf::Vector2f(this->gridSize, this->gridSize));
+    if (gridMode) {
+        emptyTile->setOutlineThickness(-0.5f);
+        emptyTile->setOutlineColor(sf::Color(145, 145, 145));
+    }
+    emptyTile->setFillColor(sf::Color(0, 0, 0, 255));
 
     //map creation
     gameMap = new int*[mapSizeX];
     for (int x = 0; x < mapSizeX; x++)
         gameMap[x] = new int[mapSizeY];
     
-    //first row walls
+    //top wall
     for (int x = 0; x < mapSizeX; x++)
         gameMap[x][0] = Tile::Wall;
 
-    //center
-    for (int x = 1; x < mapSizeX - 1; x++) {
-        for (int y = 0; y < mapSizeY; y++) {
-            if (y == 0 || y == mapSizeY - 1)
-                gameMap[x][y] = Tile::Wall;
-            else
-                gameMap[x][y] = Tile::Empty;
-        }
-    }     
-
-    //last row walls
+    //bottom wall
     for (int x = 0; x < mapSizeX; x++)
         gameMap[x][mapSizeY - 1] = Tile::Wall;
+
+    //left wall
+    for (int y = 1; y < mapSizeY - 1; y++)
+        gameMap[0][y] = Tile::Wall;
+
+    //right wall
+    for (int y = 1; y < mapSizeY - 1; y++)
+        gameMap[mapSizeX - 1][y] = Tile::Wall;
+
+    //center of the map
+    for (int x = 1; x < mapSizeX - 1; x++)
+        for (int y = 1; y < mapSizeY - 1; y++) 
+                gameMap[x][y] = Tile::Empty;
 
     //spawn snake in the center of the map
     snake.snakePart->push_front(*new Position(mapSizeX / 2, mapSizeY / 2));
     gameMap[snake.snakePart->front().x][snake.snakePart->front().y] = Tile::SnakeBody;
-
 
     //spawn first apple in random position
     spawnApple();
@@ -68,7 +72,9 @@ GameHandler::GameHandler(int mapSizeX, int mapSizeY, float gridSize, bool gridMo
 GameHandler::~GameHandler() {
     delete snakeTile;
     delete appleTile;
-    delete testingTile;
+    delete wallTile;
+    delete errorTile;
+    delete emptyTile;
 
     for (int x = 0; x < mapSizeX; x++)
         delete[] gameMap[x];
@@ -99,8 +105,7 @@ void GameHandler::drawMap(sf::RenderWindow *window) {
         for (int y = 0; y < mapSizeY; y++) {
             switch (gameMap[x][y]){
             case Tile::Empty: //empty tile
-                if (gridMode)
-                    toBeDrawnTile = testingTile;
+                toBeDrawnTile = emptyTile;
                 break;
 
             case Tile::Apple: //apple tile

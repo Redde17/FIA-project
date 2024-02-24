@@ -9,10 +9,10 @@
 int map[MAP_X][MAP_Y];
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(MAP_X * GRID_SIZE, MAP_Y * GRID_SIZE), "SnAIke"); 
+    sf::RenderWindow window(sf::VideoMode(MAP_X * GRID_SIZE, MAP_Y * GRID_SIZE), "SnAIke", sf::Style::Close);
     
     //Tile definitions
-    GameHandler GH(MAP_X, MAP_Y, GRID_SIZE, true);
+    GameHandler GH(MAP_X, MAP_Y, GRID_SIZE, false);
 
     while (window.isOpen())
     {
@@ -50,11 +50,12 @@ int main() {
                     break;
             }
         }
-
         window.clear();
         GH.drawMap(&window);
         window.display();
     }
+
+    delete &GH;
 
 	return 0;
 }

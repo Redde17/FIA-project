@@ -47,7 +47,7 @@ private:
 	sf::RectangleShape *appleTile;
 	sf::RectangleShape* wallTile;
 	sf::RectangleShape *errorTile;
-	sf::RectangleShape *testingTile;
+	sf::RectangleShape *emptyTile;
 
 
 public:
