@@ -60,6 +60,7 @@ public:
 	void drawMap(sf::RenderWindow *window);
 	void spawnApple();
 
+
 private:
 	void moveSnake(int x, int y);
 };

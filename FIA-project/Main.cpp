@@ -1,9 +1,10 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "GameHandler.h"
+#include "PathFinder.h"
 
-#define MAP_X 31
-#define MAP_Y 31
+#define MAP_X 21
+#define MAP_Y 21
 #define GRID_SIZE 30
 
 int map[MAP_X][MAP_Y];
@@ -12,7 +13,10 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(MAP_X * GRID_SIZE, MAP_Y * GRID_SIZE), "SnAIke", sf::Style::Close);
     
     //Tile definitions
-    GameHandler GH(MAP_X, MAP_Y, GRID_SIZE, false);
+    GameHandler GH(MAP_X, MAP_Y, GRID_SIZE, true);
+
+    PathFinder PF;
+    //PF.findPath(GH.);
 
     while (window.isOpen())
     {
@@ -55,7 +59,7 @@ int main() {
         window.display();
     }
 
-    delete &GH;
+    //delete &GH;
 
 	return 0;
 }
