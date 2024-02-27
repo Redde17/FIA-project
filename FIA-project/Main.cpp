@@ -16,10 +16,24 @@ int main() {
     GameHandler GH(MAP_X, MAP_Y, GRID_SIZE, true);
 
     PathFinder PF;
-    //PF.findPath(GH.);
+
 
     while (window.isOpen())
     {
+        //AI integration
+        //check if action buffer is empty or notzz
+        if (PF.actionBuffer->empty()) {
+            PF.findPath(
+                GH.getMap(),
+                GH.getSnakeHeadPositionX(),
+                GH.getSnakeHeadPositionY(),
+                GH.getApplePositionX(),
+                GH.getApplePositionY()
+            );
+        }
+        //if not empty do nothing
+
+        //handle events and action buffer
         sf::Event event;
         while (window.pollEvent(event)){
             switch (event.type){
@@ -54,6 +68,8 @@ int main() {
                     break;
             }
         }
+
+        //draw map
         window.clear();
         GH.drawMap(&window);
         window.display();

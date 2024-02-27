@@ -1,6 +1,6 @@
 #pragma once
-#include <list>
 #include <string>
+#include <stack>
 
 class PathFinder
 {
@@ -25,6 +25,18 @@ class PathFinder
 	void debug_PrintMessage(std::string msg);
 
 public:
+	enum Action {
+		UP = 0,
+		DOWN = 1,
+		LEFT = 2,
+		RIGHT = 3
+	};
+
+	std::stack<Action>* actionBuffer;
+
+	PathFinder();
+	~PathFinder();
+
 	void findPath(int** mapInstance, int xStart, int yStart, int xTarget, int yTarget);
 };
 

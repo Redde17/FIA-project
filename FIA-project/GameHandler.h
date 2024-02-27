@@ -53,6 +53,13 @@ private:
 public:
 	GameHandler(int mapSizeX, int mapSizeY, float gridSize, bool gridMode);
 	~GameHandler();
+	
+	int** getMap();
+	int getSnakeHeadPositionX();
+	int getSnakeHeadPositionY();
+	int getApplePositionX();
+	int getApplePositionY();
+	
 	void moveSnakeUp();
 	void moveSnakeDown();
 	void moveSnakeLeft();

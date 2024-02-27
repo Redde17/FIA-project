@@ -81,6 +81,26 @@ GameHandler::~GameHandler() {
     delete[] gameMap;
 }
 
+int** GameHandler::getMap() {
+    return gameMap;
+}
+
+int GameHandler::getSnakeHeadPositionX() {
+    return snake.snakePart->front().x;
+}
+
+int GameHandler::getSnakeHeadPositionY() {
+    return snake.snakePart->front().y;
+}
+
+int GameHandler::getApplePositionX() {
+    return apple.position.x;
+}
+
+int GameHandler::getApplePositionY() {
+    return apple.position.y;
+}
+
 void GameHandler::moveSnakeUp() {
     moveSnake(snake.snakePart->front().x, snake.snakePart->front().y - 1);
 }
@@ -104,15 +124,15 @@ void GameHandler::drawMap(sf::RenderWindow *window) {
     for (int x = 0; x < mapSizeX; x++) {
         for (int y = 0; y < mapSizeY; y++) {
             switch (gameMap[x][y]){
-            case Tile::Empty: //empty tile
+            case Tile::Empty:
                 toBeDrawnTile = emptyTile;
                 break;
 
-            case Tile::Apple: //apple tile
+            case Tile::Apple:
                 toBeDrawnTile = appleTile;
                 break;
 
-            case Tile::Wall: //apple tile
+            case Tile::Wall: 
                 toBeDrawnTile = wallTile;
                 break;
 
