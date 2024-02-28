@@ -17,20 +17,11 @@ int main() {
 
     PathFinder PF;
 
-
     while (window.isOpen())
     {
         //AI integration
-        //check if action buffer is empty or notzz
-        if (PF.actionBuffer->empty()) {
-            PF.findPath(
-                GH.getMap(),
-                GH.getSnakeHeadPositionX(),
-                GH.getSnakeHeadPositionY(),
-                GH.getApplePositionX(),
-                GH.getApplePositionY()
-            );
-        }
+        //check if action buffer is empty or not
+        int** map = GH.getMap();
         //if not empty do nothing
 
         //handle events and action buffer
@@ -58,7 +49,15 @@ int main() {
                         case sf::Keyboard::Scan::Right:
                             GH.moveSnakeRight();
                             break;
-
+                        case sf::Keyboard::Scan::Space:
+                                PF.findPath(
+                                    map,
+                                    GH.getSnakeHeadPositionX(),
+                                    GH.getSnakeHeadPositionY(),
+                                    GH.getApplePositionX(),
+                                    GH.getApplePositionY()
+                                );
+                            break;
                         default:
                             break;
                     }
