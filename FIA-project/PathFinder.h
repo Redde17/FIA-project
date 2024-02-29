@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
 #include <stack>
+#include <vector>
+#include <queue>
+#include <list>
 
 class PathFinder
 {
@@ -10,7 +13,7 @@ class PathFinder
 		float g = 0;
 		float h = 0;
 		float f = 0;
-		Node* parent;
+		Node* parent = NULL;
 
 		Node(int x, int y) {
 			this->x = x;
@@ -24,16 +27,42 @@ class PathFinder
 		}
 	};
 
-	struct NodeComparator {
-		bool operator()(const Node& n1, const Node& n2) const {
-			return n1.f < n2.f;
+	template<
+		class T,
+		class Container = std::vector<T>,
+		class Compare = std::less<typename Container::value_type>
+> class CustomPriorityQueue : public std::priority_queue<T, Container, Compare>
+	{
+	public:
+		typedef typename
+			std::priority_queue<
+			T,
+			Container,
+			Compare>::container_type::const_iterator const_iterator;
+
+		bool findNode(const Node& val) const
+		{
+			auto first = this->c.cbegin();
+			auto last = this->c.cend();
+			while (first != last) {
+				if (((Node)*first).x == val.x && ((Node)*first).y == val.y) return true;
+				++first;
+			}
+			
+			return false;
 		}
 	};
 
-	int** mapInstace;
+	struct NodeComparator {
+		bool operator()(const Node& n1, const Node& n2) const {
+			return n1.f > n2.f;
+		}
+	};
+
+	//int** mapInstace;
 	//std::list<Node> finalPath;
 
-	float calculateDistance(Node start, Node target);
+	static float calculateDistance(Node start, Node target);
 
 	void algorithmAstar(Node start, Node target, float h);
 
@@ -52,6 +81,6 @@ public:
 	PathFinder();
 	~PathFinder();
 
-	bool findPath(int** &mapInstance, int xStart, int yStart, int xTarget, int yTarget);
+	bool findPath(std::vector<std::vector<int>> mapInstance, int xStart, int yStart, int xTarget, int yTarget);
 };
 

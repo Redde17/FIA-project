@@ -35,11 +35,22 @@ GameHandler::GameHandler(int mapSizeX, int mapSizeY, float gridSize, bool gridMo
     }
     emptyTile->setFillColor(sf::Color(0, 0, 0, 255));
 
-    //map creation
-    gameMap = new int*[mapSizeX];
-    for (int x = 0; x < mapSizeX; x++)
-        gameMap[x] = new int[mapSizeY];
-    
+    //new map creation where map is std::vector<std::vector<int>>
+    gameMap.resize(mapSizeX, std::vector<int>(mapSizeY, Tile::Empty));
+
+
+    //old map creation where map is int**
+    ////map creation
+    //gameMap = new int*[mapSizeX];
+    //for (int x = 0; x < mapSizeX; x++)
+    //    gameMap[x] = new int[mapSizeY];
+    //
+
+    ////center of the map
+    //for (int x = 1; x < mapSizeX - 1; x++)
+    //    for (int y = 1; y < mapSizeY - 1; y++) 
+    //            gameMap[x][y] = Tile::Empty;
+
     //top wall
     for (int x = 0; x < mapSizeX; x++)
         gameMap[x][0] = Tile::Wall;
@@ -56,11 +67,6 @@ GameHandler::GameHandler(int mapSizeX, int mapSizeY, float gridSize, bool gridMo
     for (int y = 1; y < mapSizeY - 1; y++)
         gameMap[mapSizeX - 1][y] = Tile::Wall;
 
-    //center of the map
-    for (int x = 1; x < mapSizeX - 1; x++)
-        for (int y = 1; y < mapSizeY - 1; y++) 
-                gameMap[x][y] = Tile::Empty;
-
     //spawn snake in the center of the map
     snake.snakePart->push_front(*new Position(mapSizeX / 2, mapSizeY / 2));
     gameMap[snake.snakePart->front().x][snake.snakePart->front().y] = Tile::SnakeBody;
@@ -76,12 +82,12 @@ GameHandler::~GameHandler() {
     delete errorTile;
     delete emptyTile;
 
-    for (int x = 0; x < mapSizeX; x++)
-        delete[] gameMap[x];
-    delete[] gameMap;
+    //for (int x = 0; x < mapSizeX; x++)
+    //    delete[] gameMap[x];
+    //delete[] gameMap;
 }
 
-int** GameHandler::getMap() {
+std::vector<std::vector<int>> GameHandler::getMap() {
     return gameMap;
 }
 

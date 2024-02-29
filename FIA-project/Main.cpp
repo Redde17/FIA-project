@@ -21,7 +21,7 @@ int main() {
     {
         //AI integration
         //check if action buffer is empty or not
-        int** map = GH.getMap();
+        
         //if not empty do nothing
 
         //handle events and action buffer
@@ -50,13 +50,21 @@ int main() {
                             GH.moveSnakeRight();
                             break;
                         case sf::Keyboard::Scan::Space:
+                            if (PF.actionBuffer->empty()) {
                                 PF.findPath(
-                                    map,
+                                    GH.getMap(),
                                     GH.getSnakeHeadPositionX(),
                                     GH.getSnakeHeadPositionY(),
                                     GH.getApplePositionX(),
                                     GH.getApplePositionY()
                                 );
+                            }
+                            else {
+                                for (int i = 0; i < PF.actionBuffer->size(); i++){
+
+                                    std::cout << "action[" << i << "] = " << std::endl;
+                                }
+                            }
                             break;
                         default:
                             break;

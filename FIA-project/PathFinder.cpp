@@ -1,7 +1,6 @@
 #include "PathFinder.h"
 #include <iostream>
-#include <queue>
-#include <list>
+#include "CustomPriorityQueue.h"
 
 void PathFinder::debug_PrintMessage(std::string msg) {
 	std::cout << "=== AI debug message start ===" << std::endl;
@@ -25,63 +24,129 @@ float PathFinder::calculateDistance(Node start, Node target) {
 	return abs(abs(start.x - target.x) + abs(start.y - target.y));
 }
 
-bool PathFinder::findPath(int** &mapInstance, int xStart, int yStart, int xTarget, int yTarget) {
+
+bool PathFinder::findPath(std::vector<std::vector<int>> mapInstance, int xStart, int yStart, int xTarget, int yTarget) {
 	//this->mapInstace = mapInstace;
 	Node startNode(xStart, yStart);
 	Node targetNode(xTarget, yTarget);
 
-	std::priority_queue<Node, std::vector<Node>, NodeComparator> unexploredNodes;
-	std::list<Node> exploredNodes;
+	CustomPriorityQueue<Node, std::vector<Node>, NodeComparator> openNodes;
+	std::list<Node> closedNodes;
 	
-	startNode.h = calculateDistance(startNode, targetNode);
-	unexploredNodes.push(startNode);
+	startNode.f = calculateDistance(startNode, targetNode);
+	startNode.h = PathFinder::calculateDistance(startNode, targetNode);
+	openNodes.push(startNode);
 
 
-	while (!unexploredNodes.empty()){
-		Node head = unexploredNodes.top();
-		unexploredNodes.pop();
+	while (!openNodes.empty()){
+		Node head = openNodes.top();
+		std::cout << "popping openNodes: (" << head.x << " , " << head.y << ") f: " << head.f << std::endl;
+		std::cout << "start position: (" << startNode.x << " , " << startNode.y << ")" << std::endl;
+		std::cout << "target position: (" << targetNode.x << " , " << targetNode.y << ")" << std::endl;
+		openNodes.pop();
 
 		if (head.x == targetNode.x && head.y == targetNode.y) {
+			//reconstruct path
+			std::cout << "Started path reconstruction" << std::endl;
+			Node pathNode = head;
+			int x, y;
+
+			while (pathNode.parent->x != startNode.x && pathNode.parent->y != startNode.y)
+			{
+				std::cout << "Current node: (" << pathNode.x << "," << pathNode.y << ") " << std::endl;
+				std::cout << "Current parent node: (" << pathNode.parent->x << "," << pathNode.parent->y << ") " << std::endl;
+
+				//find action by subtracting x and y
+				//could be done probably better if in the node i save
+				//the action that the parent makes to reach it
+				//not sure if it would work
+				x = pathNode.x - pathNode.parent->x;
+				y = pathNode.y - pathNode.parent->y;
+
+				switch (x)
+				{
+				case 1:
+					//down
+					actionBuffer->push(Action::DOWN);
+					break;
+				case -1:
+					//up
+					actionBuffer->push(Action::UP);
+					break;
+				default:
+					//0
+					switch (y)
+					{
+					case 1:
+						//right
+						actionBuffer->push(Action::RIGHT);
+						break;
+					case -1:
+						//left
+						actionBuffer->push(Action::LEFT);
+						break;
+					default:
+						std::cout << "Unexpected x and y combination during path reconstruction" << std::endl;
+						break;
+					}
+					break;
+				}
+				pathNode = *pathNode.parent;
+			}
+
+			std::cout << "Finished path reconstruction with [" << actionBuffer->size() << "] steps" << std::endl;
 			return true;
 		}
 
 		//generate successors
-		//up
-		if (mapInstace[head.x][head.y - 1] == 0 || mapInstace[head.x][head.y - 1] == 1) {
-			Node successorUp(&head, head.x, head.y - 1);
-			successorUp.g = calculateDistance(startNode, successorUp);
-			successorUp.h = calculateDistance(successorUp, targetNode);
-			successorUp.f = successorUp.g + successorUp.h;
-			unexploredNodes.push(successorUp);
-		}
+		//for each successor
+		//set position
+		//check if already in openNodes
+		//maybe also check for path efficiency?
+		//set g, h, f and parent.
+		//g gets omitted from f calculation, for some reason it creates loops
 
-		//down
-		if (mapInstace[head.x][head.y + 1] == 0 || mapInstace[head.x][head.y - 1] == 1) {
-			Node successorDown(&head, head.x, head.y + 1);
-			successorDown.g = calculateDistance(startNode, successorDown);
-			successorDown.h = calculateDistance(successorDown, targetNode);
-			successorDown.f = successorDown.g + successorDown.h;
-			unexploredNodes.push(successorDown);
-		}
+		Node* successorNode = new Node(0, 0);
+		for (int i = 0; i < 4; i++){
+			switch (i)
+			{
+			case 0: //up
+				successorNode->x = head.x - 1;
+				successorNode->y = head.y;
+				break;
+			case 1: //down
+				successorNode->x = head.x + 1;
+				successorNode->y = head.y;
+				break;
+			case 2: //left
+				successorNode->x = head.x;
+				successorNode->y = head.y - 1;
+				break;
+			case 3: //right
+				successorNode->x = head.x;
+				successorNode->y = head.y + 1;
+				break;
+			default:
+				//error
+				return false;
+			}
 
-		//left
-		if (mapInstace[head.x - 1][head.y] == 0 || mapInstace[head.x][head.y - 1] == 1) {
-			Node successorLeft(&head, head.x -1, head.y);
-			successorLeft.g = calculateDistance(startNode, successorLeft);
-			successorLeft.h = calculateDistance(successorLeft, targetNode);
-			successorLeft.f = successorLeft.g + successorLeft.h;
-			unexploredNodes.push(successorLeft);
-		}
+			//if successor is not empty or apple then skip successor
+			if (mapInstance[successorNode->x][successorNode->y] == 0 || mapInstance[successorNode->x][successorNode->y] == 1)
+			{
+				successorNode->parent = &head;
+				successorNode->g = PathFinder::calculateDistance(startNode, *successorNode);
+				successorNode->h = PathFinder::calculateDistance(*successorNode, targetNode);
+				successorNode->f = successorNode->h;
 
-		//right
-		if (mapInstace[head.x + 1][head.y] == 0 || mapInstace[head.x][head.y - 1] == 1) {
-			Node successorRight(&head, head.x + 1, head.y);
-			successorRight.g = calculateDistance(startNode, successorRight);
-			successorRight.h = calculateDistance(successorRight, targetNode);
-			successorRight.f = successorRight.g + successorRight.h;
-			unexploredNodes.push(successorRight);
+				//check if successorNode is in openNodes.
+				if (!openNodes.findNode(*successorNode)) {
+					std::cout << "pushing openNodes." << i << " : (" << successorNode->x << ", " << successorNode.y << ") f : " << successorNode.f << std::endl;
+					openNodes.push(*successorNode);
+				}
+			}
 		}
-
+		//closedNodes.push_front(head);
 	}
 
 	return false;

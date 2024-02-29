@@ -37,7 +37,10 @@ private:
 		std::list<Position> *snakePart = new std::list<Position>();
 	} snake;
 
-	int** gameMap;
+	//int** gameMap;
+
+	std::vector < std::vector<int> > gameMap;
+
 	int mapSizeX;
 	int mapSizeY;
 	float gridSize;
@@ -54,7 +57,7 @@ public:
 	GameHandler(int mapSizeX, int mapSizeY, float gridSize, bool gridMode);
 	~GameHandler();
 	
-	int** getMap();
+	std::vector<std::vector<int>> getMap();
 	int getSnakeHeadPositionX();
 	int getSnakeHeadPositionY();
 	int getApplePositionX();
