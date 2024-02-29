@@ -11,7 +11,8 @@ int map[MAP_X][MAP_Y];
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(MAP_X * GRID_SIZE, MAP_Y * GRID_SIZE), "SnAIke", sf::Style::Close);
-    
+    bool snakeIsNotStuck = true;
+
     //Tile definitions
     GameHandler GH(MAP_X, MAP_Y, GRID_SIZE, true);
 
@@ -42,13 +43,18 @@ int main() {
             PF.actionBuffer->pop();
         }
         else{
-            PF.findPath(
-                GH.getMap(),
-                GH.getSnakeHeadPositionX(),
-                GH.getSnakeHeadPositionY(),
-                GH.getApplePositionX(),
-                GH.getApplePositionY()
-            );
+            if (snakeIsNotStuck) {
+                snakeIsNotStuck = PF.findPath(
+                    GH.getMap(),
+                    GH.getSnakeHeadPositionX(),
+                    GH.getSnakeHeadPositionY(),
+                    GH.getApplePositionX(),
+                    GH.getApplePositionY()
+                );
+            }
+            else {
+                std::cout << "Snake is stuck" << std::endl;
+            }
         }
         //if not empty do nothing
 
