@@ -21,7 +21,9 @@ PathFinder::~PathFinder() {
 float PathFinder::calculateDistance(Node start, Node target) {
 	//best path possibile is the path with less steps
 	//not a diagonal but a sum of the distance on the x axis and y axis between the nodes
-	return abs(abs(start.x - target.x) + abs(start.y - target.y));
+
+
+	return abs(start.x - target.x) + abs(start.y - target.y);
 }
 
 
@@ -31,7 +33,7 @@ bool PathFinder::findPath(std::vector<std::vector<int>> mapInstance, int xStart,
 	Node targetNode(xTarget, yTarget);
 
 	CustomPriorityQueue<Node, std::vector<Node>, NodeComparator> openNodes;
-	std::list<Node> closedNodes;
+	std::vector<Node> closedNodes;
 	
 	startNode.f = calculateDistance(startNode, targetNode);
 	startNode.h = PathFinder::calculateDistance(startNode, targetNode);
@@ -44,6 +46,7 @@ bool PathFinder::findPath(std::vector<std::vector<int>> mapInstance, int xStart,
 		std::cout << "start position: (" << startNode.x << " , " << startNode.y << ")" << std::endl;
 		std::cout << "target position: (" << targetNode.x << " , " << targetNode.y << ")" << std::endl;
 		openNodes.pop();
+		closedNodes.push_back(*new Node(head));
 
 		if (head.x == targetNode.x && head.y == targetNode.y) {
 			//reconstruct path
@@ -51,7 +54,7 @@ bool PathFinder::findPath(std::vector<std::vector<int>> mapInstance, int xStart,
 			Node pathNode = head;
 			int x, y;
 
-			while (pathNode.parent->x != startNode.x && pathNode.parent->y != startNode.y)
+			while (pathNode.parent != NULL)
 			{
 				std::cout << "Current node: (" << pathNode.x << "," << pathNode.y << ") " << std::endl;
 				std::cout << "Current parent node: (" << pathNode.parent->x << "," << pathNode.parent->y << ") " << std::endl;
@@ -67,11 +70,11 @@ bool PathFinder::findPath(std::vector<std::vector<int>> mapInstance, int xStart,
 				{
 				case 1:
 					//down
-					actionBuffer->push(Action::DOWN);
+					actionBuffer->push(Action::RIGHT);
 					break;
 				case -1:
 					//up
-					actionBuffer->push(Action::UP);
+					actionBuffer->push(Action::LEFT);
 					break;
 				default:
 					//0
@@ -79,11 +82,11 @@ bool PathFinder::findPath(std::vector<std::vector<int>> mapInstance, int xStart,
 					{
 					case 1:
 						//right
-						actionBuffer->push(Action::RIGHT);
+						actionBuffer->push(Action::DOWN);
 						break;
 					case -1:
 						//left
-						actionBuffer->push(Action::LEFT);
+						actionBuffer->push(Action::UP);
 						break;
 					default:
 						std::cout << "Unexpected x and y combination during path reconstruction" << std::endl;
@@ -102,7 +105,6 @@ bool PathFinder::findPath(std::vector<std::vector<int>> mapInstance, int xStart,
 		//for each successor
 		//set position
 		//check if already in openNodes
-		//maybe also check for path efficiency?
 		//set g, h, f and parent.
 		//g gets omitted from f calculation, for some reason it creates loops
 
@@ -131,22 +133,31 @@ bool PathFinder::findPath(std::vector<std::vector<int>> mapInstance, int xStart,
 				return false;
 			}
 
+			////check if successor is in closedSet
+			auto it = find_if(closedNodes.begin(), closedNodes.end(), [&successorNode](const Node& node) {
+				return node.x == successorNode->x && node.y == successorNode->y;
+				});
+			if (it != closedNodes.end()) {
+				//element found
+				std::cout << "successorNode found in closedSet" << std::endl;
+				continue;
+			}
+
 			//if successor is not empty or apple then skip successor
 			if (mapInstance[successorNode->x][successorNode->y] == 0 || mapInstance[successorNode->x][successorNode->y] == 1)
 			{
-				successorNode->parent = &head;
-				successorNode->g = PathFinder::calculateDistance(startNode, *successorNode);
+				successorNode->parent = new Node(head);
+				successorNode->g = successorNode->parent->g + 1;
 				successorNode->h = PathFinder::calculateDistance(*successorNode, targetNode);
-				successorNode->f = successorNode->h;
+				successorNode->f = successorNode->h + successorNode->g;
 
 				//check if successorNode is in openNodes.
 				if (!openNodes.findNode(*successorNode)) {
-					std::cout << "pushing openNodes." << i << " : (" << successorNode->x << ", " << successorNode.y << ") f : " << successorNode.f << std::endl;
+					std::cout << "pushing openNodes." << i << " : (" << successorNode->x << ", " << successorNode->y << ") f : " << successorNode->f << std::endl;
 					openNodes.push(*successorNode);
 				}
 			}
 		}
-		//closedNodes.push_front(head);
 	}
 
 	return false;

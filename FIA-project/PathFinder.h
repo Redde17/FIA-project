@@ -25,6 +25,15 @@ class PathFinder
 			this->x = x;
 			this->y = y;
 		}
+
+		Node(Node* baseNode) {
+			this->parent = baseNode->parent;
+			this->x = baseNode->x;
+			this->x = baseNode->y;
+			this->x = baseNode->g;
+			this->x = baseNode->h;
+			this->x = baseNode->f;
+		}
 	};
 
 	template<
@@ -52,6 +61,8 @@ class PathFinder
 			return false;
 		}
 	};
+
+
 
 	struct NodeComparator {
 		bool operator()(const Node& n1, const Node& n2) const {

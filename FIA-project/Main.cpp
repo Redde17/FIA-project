@@ -21,7 +21,35 @@ int main() {
     {
         //AI integration
         //check if action buffer is empty or not
-        
+        if (!PF.actionBuffer->empty()) {
+            switch (PF.actionBuffer->top()) {
+            case PathFinder::Action::UP:
+                GH.moveSnakeUp();
+                break;
+            case PathFinder::Action::DOWN:
+                GH.moveSnakeDown();
+                break;
+            case PathFinder::Action::LEFT:
+                GH.moveSnakeLeft();
+                break;
+            case PathFinder::Action::RIGHT:
+                GH.moveSnakeRight();
+                break;
+            default:
+                std::cout << "Error while parsing buffered move" << std::endl;
+                break;
+            }
+            PF.actionBuffer->pop();
+        }
+        else{
+            PF.findPath(
+                GH.getMap(),
+                GH.getSnakeHeadPositionX(),
+                GH.getSnakeHeadPositionY(),
+                GH.getApplePositionX(),
+                GH.getApplePositionY()
+            );
+        }
         //if not empty do nothing
 
         //handle events and action buffer
@@ -58,12 +86,6 @@ int main() {
                                     GH.getApplePositionX(),
                                     GH.getApplePositionY()
                                 );
-                            }
-                            else {
-                                for (int i = 0; i < PF.actionBuffer->size(); i++){
-
-                                    std::cout << "action[" << i << "] = " << std::endl;
-                                }
                             }
                             break;
                         default:
