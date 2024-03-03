@@ -34,7 +34,7 @@ private:
 	} apple;
 
 	struct Snake {
-		std::list<Position> *snakePart = new std::list<Position>();
+		std::list<Position> snakePart;
 	} snake;
 
 	//int** gameMap;
@@ -62,6 +62,7 @@ public:
 	int getSnakeHeadPositionY();
 	int getApplePositionX();
 	int getApplePositionY();
+	int getSnakeLenght();
 	
 	void moveSnakeUp();
 	void moveSnakeDown();

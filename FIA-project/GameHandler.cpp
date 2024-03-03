@@ -68,8 +68,8 @@ GameHandler::GameHandler(int mapSizeX, int mapSizeY, float gridSize, bool gridMo
         gameMap[mapSizeX - 1][y] = Tile::Wall;
 
     //spawn snake in the center of the map
-    snake.snakePart->push_front(*new Position(mapSizeX / 2, mapSizeY / 2));
-    gameMap[snake.snakePart->front().x][snake.snakePart->front().y] = Tile::SnakeBody;
+    snake.snakePart.push_front(*new Position(mapSizeX / 2, mapSizeY / 2));
+    gameMap[snake.snakePart.front().x][snake.snakePart.front().y] = Tile::SnakeBody;
 
     //spawn first apple in random position
     spawnApple();
@@ -92,11 +92,11 @@ std::vector<std::vector<int>> GameHandler::getMap() {
 }
 
 int GameHandler::getSnakeHeadPositionX() {
-    return snake.snakePart->front().x;
+    return snake.snakePart.front().x;
 }
 
 int GameHandler::getSnakeHeadPositionY() {
-    return snake.snakePart->front().y;
+    return snake.snakePart.front().y;
 }
 
 int GameHandler::getApplePositionX() {
@@ -107,25 +107,29 @@ int GameHandler::getApplePositionY() {
     return apple.position.y;
 }
 
+int GameHandler::getSnakeLenght() {
+    return snake.snakePart.size();
+}
+
 void GameHandler::moveSnakeUp() {
-    moveSnake(snake.snakePart->front().x, snake.snakePart->front().y - 1);
+    moveSnake(snake.snakePart.front().x, snake.snakePart.front().y - 1);
 }
 
 void GameHandler::moveSnakeDown() {
-    moveSnake(snake.snakePart->front().x, snake.snakePart->front().y + 1);
+    moveSnake(snake.snakePart.front().x, snake.snakePart.front().y + 1);
 }
 
 void GameHandler::moveSnakeLeft() {
-    moveSnake(snake.snakePart->front().x - 1, snake.snakePart->front().y);
+    moveSnake(snake.snakePart.front().x - 1, snake.snakePart.front().y);
 }
 
 void GameHandler::moveSnakeRight() {
-    moveSnake(snake.snakePart->front().x + 1, snake.snakePart->front().y);
+    moveSnake(snake.snakePart.front().x + 1, snake.snakePart.front().y);
 }
 
 void GameHandler::drawMap(sf::RenderWindow *window) {
     sf::RectangleShape* toBeDrawnTile = NULL;
-
+    //can be optimized
     //draw grid
     for (int x = 0; x < mapSizeX; x++) {
         for (int y = 0; y < mapSizeY; y++) {
@@ -180,16 +184,16 @@ void GameHandler::moveSnake(int x, int y) {
         //move head
         gameMap[x][y] = Tile::SnakeBody;
 
-        snake.snakePart->push_front(*new Position(x, y));
+        snake.snakePart.push_front(*new Position(x, y));
 
         spawnApple();
     }
     else {
         //move head
-        gameMap[snake.snakePart->back().x][snake.snakePart->back().y] = Tile::Empty;
+        gameMap[snake.snakePart.back().x][snake.snakePart.back().y] = Tile::Empty;
         gameMap[x][y] = Tile::SnakeBody;
 
-        snake.snakePart->pop_back();
-        snake.snakePart->push_front(*new Position(x, y));
+        snake.snakePart.pop_back();
+        snake.snakePart.push_front(*new Position(x, y));
     }
 }
