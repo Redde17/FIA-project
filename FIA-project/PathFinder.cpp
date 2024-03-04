@@ -59,20 +59,30 @@ void AI_Module::PathFinder::reconstructPath(Node* startNode) {
 }
 
 bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInstance, Node startNode, Node targetNode, PathType pathType) {
-	CustomPriorityQueue<Node, std::vector<Node>, NodeComparator> openNodes;
+	//CustomPriorityQueue<Node, std::vector<Node>, NodeComparator> openNodes;
+	std::deque<Node> openNodes;
 	std::vector<Node> closedNodes;
 
 	startNode.f = calculateDistance(startNode, targetNode);
 	startNode.h = PathFinder::calculateDistance(startNode, targetNode);
-	openNodes.push(startNode);
-
+	openNodes.push_front(startNode);
 
 	while (!openNodes.empty()) {
-		Node head = openNodes.top();
+
 		//std::cout << "popping openNodes: (" << head.x << " , " << head.y << ") f: " << head.f << std::endl;
 		//std::cout << "start position: (" << startNode.x << " , " << startNode.y << ")" << std::endl;
 		//std::cout << "target position: (" << targetNode.x << " , " << targetNode.y << ")" << std::endl;
-		openNodes.pop();
+
+		Node head(0, 0);
+		if (pathType == PathType::Short) {
+			head = openNodes.front();
+			openNodes.pop_front();
+		}
+		else {
+			head = openNodes.back();
+			openNodes.pop_back();
+		}
+
 		closedNodes.push_back(*new Node(head));
 
 		if (head.x == targetNode.x && head.y == targetNode.y) {
@@ -113,10 +123,10 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 			}
 
 			//check if successor is in closedSet
-			auto it = find_if(closedNodes.begin(), closedNodes.end(), [&successorNode](const Node& node) {
+			auto findInClosedNodesResult = find_if(closedNodes.begin(), closedNodes.end(), [&successorNode](const Node& node) {
 				return node.x == successorNode->x && node.y == successorNode->y;
-				});
-			if (it != closedNodes.end()) {
+			});
+			if (findInClosedNodesResult != closedNodes.end()) {
 				//element found
 				//std::cout << "successorNode found in closedSet" << std::endl;
 				continue;
@@ -126,14 +136,22 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 			if (mapInstance[successorNode->x][successorNode->y] == 0 || mapInstance[successorNode->x][successorNode->y] == 1)
 			{
 				successorNode->parent = new Node(head);
-				successorNode->g = successorNode->parent->g + 1;
+				successorNode->g = PathFinder::calculateDistance(startNode, *successorNode);
 				successorNode->h = PathFinder::calculateDistance(*successorNode, targetNode);
 				successorNode->f = successorNode->h + successorNode->g;
 
+				auto findInOpenNodesResult = find_if(openNodes.begin(), openNodes.end(), [&successorNode](const Node& node) {
+					return node.x == successorNode->x && node.y == successorNode->y;
+					});
+
 				//check if successorNode is in openNodes.
-				if (!openNodes.findNode(*successorNode)) {
+				if (findInOpenNodesResult == openNodes.end()) {
 					//std::cout << "pushing openNodes." << i << " : (" << successorNode->x << ", " << successorNode->y << ") f : " << successorNode->f << std::endl;
-					openNodes.push(*successorNode);
+					openNodes.push_front(*successorNode);
+
+					std::sort(openNodes.begin(), openNodes.end(), [](const Node& n1, const Node& n2) {
+						return n1.f < n2.f;
+					});
 				}
 			}
 		}

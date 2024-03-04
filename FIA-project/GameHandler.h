@@ -64,15 +64,15 @@ public:
 	int getApplePositionY();
 	int getSnakeLenght();
 	
-	void moveSnakeUp();
-	void moveSnakeDown();
-	void moveSnakeLeft();
-	void moveSnakeRight();
+	bool moveSnakeUp();
+	bool moveSnakeDown();
+	bool moveSnakeLeft();
+	bool moveSnakeRight();
 	void drawMap(sf::RenderWindow *window);
 	void spawnApple();
 
-
+	bool checkIfSnakeCanMove();
 private:
-	void moveSnake(int x, int y);
+	bool moveSnake(int x, int y);
 };
 

@@ -111,20 +111,20 @@ int GameHandler::getSnakeLenght() {
     return snake.snakePart.size();
 }
 
-void GameHandler::moveSnakeUp() {
-    moveSnake(snake.snakePart.front().x, snake.snakePart.front().y - 1);
+bool GameHandler::moveSnakeUp() {
+    return moveSnake(snake.snakePart.front().x, snake.snakePart.front().y - 1);
 }
 
-void GameHandler::moveSnakeDown() {
-    moveSnake(snake.snakePart.front().x, snake.snakePart.front().y + 1);
+bool GameHandler::moveSnakeDown() {
+    return moveSnake(snake.snakePart.front().x, snake.snakePart.front().y + 1);
 }
 
-void GameHandler::moveSnakeLeft() {
-    moveSnake(snake.snakePart.front().x - 1, snake.snakePart.front().y);
+bool GameHandler::moveSnakeLeft() {
+    return moveSnake(snake.snakePart.front().x - 1, snake.snakePart.front().y);
 }
 
-void GameHandler::moveSnakeRight() {
-    moveSnake(snake.snakePart.front().x + 1, snake.snakePart.front().y);
+bool GameHandler::moveSnakeRight() {
+    return moveSnake(snake.snakePart.front().x + 1, snake.snakePart.front().y);
 }
 
 void GameHandler::drawMap(sf::RenderWindow *window) {
@@ -175,10 +175,28 @@ void GameHandler::spawnApple() {
     }   
 }
 
-void GameHandler::moveSnake(int x, int y) {
+bool GameHandler::checkIfSnakeCanMove() {
+    //get snake head surroundings 
+    int surroingTiles[4] = {
+        gameMap[snake.snakePart.front().x][snake.snakePart.front().y - 1], //up
+        gameMap[snake.snakePart.front().x][snake.snakePart.front().y + 1], //down
+        gameMap[snake.snakePart.front().x - 1][snake.snakePart.front().y], //left
+        gameMap[snake.snakePart.front().x + 1][snake.snakePart.front().y]  //right
+    };
+    
+    if (surroingTiles[0] == Tile::Empty || surroingTiles[0] == Tile::Apple ||
+        surroingTiles[1] == Tile::Empty || surroingTiles[1] == Tile::Apple ||
+        surroingTiles[2] == Tile::Empty || surroingTiles[2] == Tile::Apple ||
+        surroingTiles[3] == Tile::Empty || surroingTiles[3] == Tile::Apple)
+        return true;
+
+    return false;
+}
+
+bool GameHandler::moveSnake(int x, int y) {
     //check if valid move
     if (gameMap[x][y] != Tile::Empty && gameMap[x][y] != Tile::Apple) //invalid move, next tile is not empty(0)
-        return;
+        return false;
 
     if (gameMap[x][y] == Tile::Apple) {
         //move head
@@ -196,4 +214,6 @@ void GameHandler::moveSnake(int x, int y) {
         snake.snakePart.pop_back();
         snake.snakePart.push_front(*new Position(x, y));
     }
+
+    return true;
 }

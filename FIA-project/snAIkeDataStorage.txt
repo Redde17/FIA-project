@@ -1,0 +1,12 @@
+==Data recap for 10 runs== 
+Grid size:                             (51 * 51)
+Avarage snake lenght:                  135
+Avarage steps generated per path:      46
+Avarage time passed generatign paths:  33.9359
+
+==Data recap for 10 runs== 
+Grid size:                             (51 * 51)
+Avarage snake lenght:                  130
+Avarage steps generated per path:      95
+Avarage time passed generatign paths:  36.531
+

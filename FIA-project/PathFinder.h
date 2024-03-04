@@ -72,11 +72,13 @@ namespace AI_Module {
 
 	public:
 		std::stack<Action>* actionBuffer;
+		Action lastActionPerformed;
 
 		PathFinder();
 		~PathFinder();
 
 		bool findPath(std::vector<std::vector<int>> mapInstance, int xStart, int yStart, int xTarget, int yTarget, PathType pathType);
+
 	};
 
 	template<

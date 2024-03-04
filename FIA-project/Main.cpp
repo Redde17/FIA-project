@@ -15,7 +15,7 @@ using std::chrono::high_resolution_clock;
 #define SIMPLE 0
 
 #define DATA_COLLECTION_RUN false
-#define DATA_COLLECTION_RUN_MAX_AMOUNT 100
+#define DATA_COLLECTION_RUN_MAX_AMOUNT 10
 #define DATA_COLLECTION_RUN_WAIT 0ms
 
 //on FULL each run will be saved and some avarage data of the whole execution
@@ -25,11 +25,11 @@ using std::chrono::high_resolution_clock;
 #if DATA_COLLECTION_RUN
     #define GRID_SIZE 0
 #else
-    #define GRID_SIZE 20
+    #define GRID_SIZE 30
 #endif
 
-#define MAP_X 51
-#define MAP_Y 51
+#define MAP_X 21
+#define MAP_Y 21
 
 #define SNAKE_GRID_MODE true
 
@@ -64,8 +64,11 @@ int main() {
     while (window.isOpen())
     {
 
+
+        if (!snakeIsNotStuck && !GH.checkIfSnakeCanMove()) {
+            //game ended
+            std::cout << "snake cannot move" << std::endl;
 #if DATA_COLLECTION_RUN
-        if (!snakeIsNotStuck ) {
             //dump game data into a file for data collection
             printDataOnCoutStream(GH.getSnakeLenght());
 
@@ -87,8 +90,72 @@ int main() {
             snakeIsNotStuck = true;
             GH = *new GameHandler(MAP_X, MAP_Y, GRID_SIZE, SNAKE_GRID_MODE);
             runNumber++;
-        }
 #endif
+        }
+        else if (!snakeIsNotStuck && GH.checkIfSnakeCanMove()) {
+            //try to unstuck snake for AI
+            std::cout << "snake can still move" << std::endl;
+            bool actionPerformed = false;
+            switch (PF.lastActionPerformed)
+            {
+            case AI_Module::PathFinder::Action::UP:
+                if (GH.moveSnakeUp())
+                    break;
+                if (GH.moveSnakeRight()) {
+                    GH.moveSnakeDown();
+                    break;
+                }
+
+                if (GH.moveSnakeLeft()) {
+                    GH.moveSnakeDown();
+                    break;
+                }
+
+            case AI_Module::PathFinder::Action::DOWN:
+                if (GH.moveSnakeDown())
+                    break;
+                if (GH.moveSnakeLeft()) {
+                    GH.moveSnakeUp();
+                    break;
+                }
+
+                if (GH.moveSnakeRight()) {
+                    GH.moveSnakeUp();
+                    break;
+                }
+
+            case AI_Module::PathFinder::Action::LEFT:
+                if (GH.moveSnakeLeft())
+                    break;
+                if (GH.moveSnakeDown()) {
+                    GH.moveSnakeRight();
+                    break;
+                }
+
+                if (GH.moveSnakeUp()) {
+                    GH.moveSnakeRight();
+                    break;
+                }
+
+            case AI_Module::PathFinder::Action::RIGHT:
+                if (GH.moveSnakeRight())
+                    break;
+                if (GH.moveSnakeUp()) {
+                    GH.moveSnakeLeft();
+                    break;
+                }
+
+                if (GH.moveSnakeDown()) {
+                    GH.moveSnakeLeft();
+                    break;
+                }
+
+            default:
+                std::cout << "Error while parsing buffered move" << std::endl;
+                break;
+            }
+            snakeIsNotStuck = true;
+        }
 
         //AI integration
         generateAIAction(&GH, &PF, &snakeIsNotStuck);
@@ -131,12 +198,18 @@ void generateAIAction(GameHandler* GH, AI_Module::PathFinder* PF, bool* snakeIsN
             std::cout << "Error while parsing buffered move" << std::endl;
             break;
         }
+        PF->lastActionPerformed = PF->actionBuffer->top();
         PF->actionBuffer->pop();
     }
     else {
         if (*snakeIsNotStuck) {
             auto t1 = high_resolution_clock::now();
-
+            //checks the snake lenght, if the lenght is greater then a certain number
+            //switch path finding type to try to find a longer path rather then a short one
+            //the idea behind this choice is to try and increase snake lenght as much as possible
+            //because if the snake takes a longer route, it shoul coil around itself less, and thus get stuck less
+            //snake lenght check number is based on some test runs
+            //probably could be a much better number
             if (GH->getSnakeLenght() < MAP_X) {
                 *snakeIsNotStuck = PF->findPath(
                     GH->getMap(),
