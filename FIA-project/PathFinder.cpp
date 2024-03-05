@@ -1,7 +1,8 @@
 #include "PathFinder.h"
 #include "CustomPriorityQueue.h"
 
-#include <iostream>
+
+
 
 //private functions
 bool AI_Module::PathFinder::NodeComparator::operator()(const Node& n1, const Node& n2) const {
@@ -87,6 +88,8 @@ void AI_Module::PathFinder::reconstructPath(Node* startNode) {
 }
 
 bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInstance, Node startNode, Node targetNode, PathType pathType) {
+	pathFinderVision = mapInstance;
+	
 	//CustomPriorityQueue<Node, std::vector<Node>, NodeComparator> openNodes;
 	std::deque<Node> openNodes;
 	std::vector<Node> closedNodes;
@@ -112,6 +115,8 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 		}
 
 		closedNodes.push_back(*new Node(head));
+		//change map for visualizer
+		pathFinderVision[closedNodes.back().x][closedNodes.back().y] = VisualizerTiles::closedSet;
 
 		if (head == targetNode) {
 			reconstructPath(&head);
@@ -165,9 +170,11 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 			{
 				//include in the heuristic how much map access does the node have
 				successorNode->parent = new Node(head);
-				successorNode->g = PathFinder::calculateDistance(startNode, *successorNode);
+				//g() is useless in this case, as each node is equally distant from each oter.
+				//so if there are two paths to the finish point, with equal h(), calculating g() will not have impact on f()
+				//successorNode->g = PathFinder::calculateDistance(startNode, *successorNode); 
 				successorNode->h = PathFinder::calculateDistance(*successorNode, targetNode);
-				successorNode->f = successorNode->h + successorNode->g;
+				successorNode->f = successorNode->h;
 
 				auto findInOpenNodesResult = find_if(openNodes.begin(), openNodes.end(), [&successorNode](const Node& node) {
 					return node == *successorNode;
@@ -177,6 +184,8 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 				if (findInOpenNodesResult == openNodes.end()) {
 					//std::cout << "pushing openNodes." << i << " : (" << successorNode->x << ", " << successorNode->y << ") f : " << successorNode->f << std::endl;
 					openNodes.push_front(*successorNode);
+					//change map for visualizer
+					pathFinderVision[openNodes.front().x][openNodes.front().y] = VisualizerTiles::openSet;
 
 					std::sort(openNodes.begin(), openNodes.end(), [](const Node& n1, const Node& n2) {
 						return n1.f < n2.f;
@@ -184,6 +193,7 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 				}
 			}
 		}
+		drawVisualizerMap(this->window);
 	}
 
 	return false;
@@ -263,7 +273,87 @@ bool AI_Module::PathFinder::findPath(std::vector<std::vector<int>> mapInstance, 
 	return algorithmAstar(mapInstance, Node(xStart, yStart), Node(xTarget, yTarget), pathType);
 }
 
-AI_Module::PathFinder::PathFinder() {
+//temp testing function for visualizing path generation
+void AI_Module::PathFinder::drawVisualizerMap(sf::RenderWindow* window) {
+	int mapSizeX = pathFinderVision[0].size();
+	int mapSizeY = mapSizeX;
+	int gridSize = 30;
+
+	sf::RectangleShape* toBeDrawnTile = NULL;
+
+	//snake tile definition
+	sf::RectangleShape* snakeTile = new sf::RectangleShape(sf::Vector2f(gridSize, gridSize));
+	snakeTile->setFillColor(sf::Color(0, 255, 0));
+
+	//apple tile definition
+	sf::RectangleShape* appleTile = new sf::RectangleShape(sf::Vector2f(gridSize, gridSize));
+	appleTile->setFillColor(sf::Color(255, 0, 0));
+
+	//wall tile definition
+	sf::RectangleShape* wallTile = new sf::RectangleShape(sf::Vector2f(gridSize, gridSize));
+	wallTile->setFillColor(sf::Color(255, 255, 255));
+
+	//error tile definition
+	sf::RectangleShape* errorTile = new sf::RectangleShape(sf::Vector2f(gridSize, gridSize));
+	errorTile->setFillColor(sf::Color(0, 0, 255));
+
+	//grid tile definition
+	sf::RectangleShape* emptyTile = new sf::RectangleShape(sf::Vector2f(gridSize, gridSize));
+	emptyTile->setOutlineThickness(-0.5f);
+	emptyTile->setOutlineColor(sf::Color(145, 145, 145));
+	emptyTile->setFillColor(sf::Color(0, 0, 0, 255));
+
+
+	sf::RectangleShape* openSetTile = new sf::RectangleShape(sf::Vector2f(gridSize, gridSize));
+	openSetTile->setFillColor(sf::Color(52, 229, 235));
+
+	sf::RectangleShape* closedSetTile = new sf::RectangleShape(sf::Vector2f(gridSize, gridSize));
+	closedSetTile->setFillColor(sf::Color(89, 52, 235));
+
+	window->clear();
+	//can be optimized
+	//draw grid
+	for (int x = 0; x < mapSizeX; x++) {
+		for (int y = 0; y < mapSizeY; y++) {
+			switch (pathFinderVision[x][y]) {
+			case VisualizerTiles::Empty:
+				toBeDrawnTile = emptyTile;
+				break;
+
+			case VisualizerTiles::Apple:
+				toBeDrawnTile = appleTile;
+				break;
+
+			case VisualizerTiles::Wall:
+				toBeDrawnTile = wallTile;
+				break;
+
+			case VisualizerTiles::SnakeBody:
+				toBeDrawnTile = snakeTile;
+				break;
+
+			case VisualizerTiles::openSet:
+				toBeDrawnTile = openSetTile;
+				break;
+
+			case VisualizerTiles::closedSet:
+				toBeDrawnTile = closedSetTile;
+				break;
+
+			default: //error?
+				break;
+			}
+
+			toBeDrawnTile->setPosition(x * gridSize, y * gridSize);
+			window->draw(*toBeDrawnTile);
+		}
+	}
+	window->display();
+	std::this_thread::sleep_for(20ms);
+}
+
+AI_Module::PathFinder::PathFinder(sf::RenderWindow* window) {
+	this->window = window;
 	actionBuffer = new std::stack<Action>();
 }
 

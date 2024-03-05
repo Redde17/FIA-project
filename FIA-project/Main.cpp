@@ -62,7 +62,7 @@ int main() {
     //game variables
     bool snakeIsNotStuck = true;
     GameHandler GH(MAP_X, MAP_Y, GRID_SIZE, true);
-    AI_Module::PathFinder PF;
+    AI_Module::PathFinder PF(&window);
 
     while (window.isOpen())
     {
@@ -110,6 +110,7 @@ int main() {
         //draw map
         window.clear();
         GH.drawMap(&window);
+        //PF.drawVisualizerMap(&window);
         window.display();
 #endif
     }
@@ -151,6 +152,7 @@ void generateAIAction(GameHandler* GH, AI_Module::PathFinder* PF, bool* snakeIsN
             //because if the snake takes a longer route, it shoul coil around itself less, and thus get stuck less
             //snake lenght check number is based on some test runs
             //probably could be a much better number
+            //the A* used in "reverse" does not really work as expected
             if (GH->getSnakeLenght() < MAP_X) {
                 *snakeIsNotStuck = PF->findPath(
                     GH->getMap(),
@@ -296,11 +298,13 @@ void tryUnstuckSnake(AI_Module::PathFinder* PF, GameHandler* GH) {
             break;
         if (GH->moveSnakeRight()) {
             GH->moveSnakeDown();
+            PF->lastActionPerformed = AI_Module::PathFinder::Action::DOWN;
             break;
         }
 
         if (GH->moveSnakeLeft()) {
             GH->moveSnakeDown();
+            PF->lastActionPerformed = AI_Module::PathFinder::Action::DOWN;
             break;
         }
 
@@ -309,11 +313,13 @@ void tryUnstuckSnake(AI_Module::PathFinder* PF, GameHandler* GH) {
             break;
         if (GH->moveSnakeLeft()) {
             GH->moveSnakeUp();
+            PF->lastActionPerformed = AI_Module::PathFinder::Action::UP;
             break;
         }
 
         if (GH->moveSnakeRight()) {
             GH->moveSnakeUp();
+            PF->lastActionPerformed = AI_Module::PathFinder::Action::UP;
             break;
         }
 
@@ -322,11 +328,13 @@ void tryUnstuckSnake(AI_Module::PathFinder* PF, GameHandler* GH) {
             break;
         if (GH->moveSnakeDown()) {
             GH->moveSnakeRight();
+            PF->lastActionPerformed = AI_Module::PathFinder::Action::RIGHT;
             break;
         }
 
         if (GH->moveSnakeUp()) {
             GH->moveSnakeRight();
+            PF->lastActionPerformed = AI_Module::PathFinder::Action::RIGHT;
             break;
         }
 
@@ -335,11 +343,13 @@ void tryUnstuckSnake(AI_Module::PathFinder* PF, GameHandler* GH) {
             break;
         if (GH->moveSnakeUp()) {
             GH->moveSnakeLeft();
+            PF->lastActionPerformed = AI_Module::PathFinder::Action::LEFT;
             break;
         }
 
         if (GH->moveSnakeDown()) {
             GH->moveSnakeLeft();
+            PF->lastActionPerformed = AI_Module::PathFinder::Action::LEFT;
             break;
         }
 

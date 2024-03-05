@@ -1,9 +1,4 @@
-#include <time.h>
-#include <stdlib.h>
 #include "GameHandler.h"
-#include <SFML/Graphics.hpp>
-#include <iostream>
-
 
 GameHandler::GameHandler(int mapSizeX, int mapSizeY, float gridSize, bool gridMode) {
     this->mapSizeX = mapSizeX;
@@ -156,6 +151,7 @@ void GameHandler::drawMap(sf::RenderWindow *window) {
 
             toBeDrawnTile->setPosition(x * gridSize, y * gridSize);
             window->draw(*toBeDrawnTile);
+            //std::this_thread::sleep_for(100ms);
         }
     }
 }

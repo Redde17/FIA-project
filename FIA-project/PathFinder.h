@@ -1,9 +1,17 @@
 #pragma once
+
+#include <SFML/Graphics.hpp>
+
+#include <iostream>
 #include <string>
 #include <stack>
 #include <vector>
 #include <queue>
 #include <list>
+#include <thread>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 //POSSIBLE UPDATES
 //include map access in the heuristic for the snake
@@ -11,9 +19,16 @@
 //make path visualizer for the algorithm
 
 namespace AI_Module {
-
-
 	class PathFinder{
+		enum VisualizerTiles {
+			Wall = -1,
+			Empty = 0,
+			Apple = 1,
+			SnakeBody = 2,
+			openSet = 3,
+			closedSet = 4
+		};
+
 	public:
 		enum PathType {
 			Short,
@@ -52,6 +67,7 @@ namespace AI_Module {
 
 	private:
 		std::vector<std::vector<int>> pathFinderVision;
+		sf::RenderWindow* window;
 
 		void debug_PrintMessage(std::string msg);
 
@@ -70,11 +86,11 @@ namespace AI_Module {
 		std::stack<Action>* actionBuffer;
 		Action lastActionPerformed;
 
-		PathFinder();
-		~PathFinder();
-
 		bool findPath(std::vector<std::vector<int>> mapInstance, int xStart, int yStart, int xTarget, int yTarget, PathType pathType);
-		void drawVisualizerMap();
+		void drawVisualizerMap(sf::RenderWindow* window);
+
+		PathFinder(sf::RenderWindow *window);
+		~PathFinder();
 	};
 
 	template<

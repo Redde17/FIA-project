@@ -1,7 +1,13 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <list>
+#include <time.h>
+#include <stdlib.h>
+#include <iostream>
+#include <chrono>
+#include <thread>
 
+using namespace std::chrono_literals;
 
 class GameHandler
 {
