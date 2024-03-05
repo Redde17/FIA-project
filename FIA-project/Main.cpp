@@ -101,8 +101,6 @@ int main() {
         //AI integration
         generateAIAction(&GH, &PF, &snakeIsNotStuck);
 
-        //if not empty do nothing
-
         //handle events and action buffer
         handleEvents(&window, &GH, &snakeIsNotStuck);
 

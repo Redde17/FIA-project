@@ -176,7 +176,7 @@ bool AI_Module::PathFinder::findHamiltionianCycle(std::vector<Node> path, int po
 
 	//for each valid neghbour
 	//get neighbour nodes
-	Node* neighbour;
+	Node* neighbour = new Node(0, 0);
 	std::vector<Node> neighbours;
 	for (int i = 0; i < 4; i++)
 	{
@@ -217,7 +217,7 @@ bool AI_Module::PathFinder::findHamiltionianCycle(std::vector<Node> path, int po
 }
 
 bool AI_Module::PathFinder::isValidStep() {
-
+	return false;
 }
 
 //public functions

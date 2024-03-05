@@ -59,13 +59,6 @@ namespace AI_Module {
 			bool operator==(const Node& a) const {
 				return (x == a.x && y == a.y);
 			}
-
-			Node& operator=(const Node& a) {
-				x = a.x;
-				y = a.y;
-
-				return *this;
-			}
 		};
 
 		struct NodeComparator {
