@@ -39,6 +39,7 @@ void printDataOnCoutStream(int snakeLenght);
 void saveRunDataOnFile(int snakeLenght);
 void saveExecutionDataOnFile();
 void cleanDataVariables();
+void tryUnstuckSnake(AI_Module::PathFinder* PF, GameHandler* GH);
 
 //data collection variables for run
 int runNumber = 1;
@@ -63,8 +64,6 @@ int main() {
 
     while (window.isOpen())
     {
-
-
         if (!snakeIsNotStuck && !GH.checkIfSnakeCanMove()) {
             //game ended
             std::cout << "snake cannot move" << std::endl;
@@ -95,65 +94,7 @@ int main() {
         else if (!snakeIsNotStuck && GH.checkIfSnakeCanMove()) {
             //try to unstuck snake for AI
             std::cout << "snake can still move" << std::endl;
-            bool actionPerformed = false;
-            switch (PF.lastActionPerformed)
-            {
-            case AI_Module::PathFinder::Action::UP:
-                if (GH.moveSnakeUp())
-                    break;
-                if (GH.moveSnakeRight()) {
-                    GH.moveSnakeDown();
-                    break;
-                }
-
-                if (GH.moveSnakeLeft()) {
-                    GH.moveSnakeDown();
-                    break;
-                }
-
-            case AI_Module::PathFinder::Action::DOWN:
-                if (GH.moveSnakeDown())
-                    break;
-                if (GH.moveSnakeLeft()) {
-                    GH.moveSnakeUp();
-                    break;
-                }
-
-                if (GH.moveSnakeRight()) {
-                    GH.moveSnakeUp();
-                    break;
-                }
-
-            case AI_Module::PathFinder::Action::LEFT:
-                if (GH.moveSnakeLeft())
-                    break;
-                if (GH.moveSnakeDown()) {
-                    GH.moveSnakeRight();
-                    break;
-                }
-
-                if (GH.moveSnakeUp()) {
-                    GH.moveSnakeRight();
-                    break;
-                }
-
-            case AI_Module::PathFinder::Action::RIGHT:
-                if (GH.moveSnakeRight())
-                    break;
-                if (GH.moveSnakeUp()) {
-                    GH.moveSnakeLeft();
-                    break;
-                }
-
-                if (GH.moveSnakeDown()) {
-                    GH.moveSnakeLeft();
-                    break;
-                }
-
-            default:
-                std::cout << "Error while parsing buffered move" << std::endl;
-                break;
-            }
+            tryUnstuckSnake(&PF, &GH);
             snakeIsNotStuck = true;
         }
 
@@ -347,3 +288,63 @@ void cleanDataVariables() {
     generationTime = generationTime.zero();
 }
 
+void tryUnstuckSnake(AI_Module::PathFinder* PF, GameHandler* GH) {
+    switch (PF->lastActionPerformed)
+    {
+    case AI_Module::PathFinder::Action::UP:
+        if (GH->moveSnakeUp())
+            break;
+        if (GH->moveSnakeRight()) {
+            GH->moveSnakeDown();
+            break;
+        }
+
+        if (GH->moveSnakeLeft()) {
+            GH->moveSnakeDown();
+            break;
+        }
+
+    case AI_Module::PathFinder::Action::DOWN:
+        if (GH->moveSnakeDown())
+            break;
+        if (GH->moveSnakeLeft()) {
+            GH->moveSnakeUp();
+            break;
+        }
+
+        if (GH->moveSnakeRight()) {
+            GH->moveSnakeUp();
+            break;
+        }
+
+    case AI_Module::PathFinder::Action::LEFT:
+        if (GH->moveSnakeLeft())
+            break;
+        if (GH->moveSnakeDown()) {
+            GH->moveSnakeRight();
+            break;
+        }
+
+        if (GH->moveSnakeUp()) {
+            GH->moveSnakeRight();
+            break;
+        }
+
+    case AI_Module::PathFinder::Action::RIGHT:
+        if (GH->moveSnakeRight())
+            break;
+        if (GH->moveSnakeUp()) {
+            GH->moveSnakeLeft();
+            break;
+        }
+
+        if (GH->moveSnakeDown()) {
+            GH->moveSnakeLeft();
+            break;
+        }
+
+    default:
+        std::cout << "Error while parsing buffered move" << std::endl;
+        break;
+    }
+}

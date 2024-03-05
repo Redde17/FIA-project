@@ -85,7 +85,7 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 
 		closedNodes.push_back(*new Node(head));
 
-		if (head.x == targetNode.x && head.y == targetNode.y) {
+		if (head == targetNode) {
 			reconstructPath(&head);
 			return true;
 		}
@@ -124,7 +124,7 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 
 			//check if successor is in closedSet
 			auto findInClosedNodesResult = find_if(closedNodes.begin(), closedNodes.end(), [&successorNode](const Node& node) {
-				return node.x == successorNode->x && node.y == successorNode->y;
+				return *successorNode == node;
 			});
 			if (findInClosedNodesResult != closedNodes.end()) {
 				//element found
@@ -141,7 +141,7 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 				successorNode->f = successorNode->h + successorNode->g;
 
 				auto findInOpenNodesResult = find_if(openNodes.begin(), openNodes.end(), [&successorNode](const Node& node) {
-					return node.x == successorNode->x && node.y == successorNode->y;
+					return node == *successorNode;
 					});
 
 				//check if successorNode is in openNodes.
@@ -158,6 +158,66 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 	}
 
 	return false;
+}
+
+bool AI_Module::PathFinder::algorithHamiltonianCycle(std::vector<std::vector<int>> mapInstance, Node start) {
+	int pathLenght = mapInstance.size();
+	std::vector<Node> path(pathLenght++);
+	path[0] = start;
+	return findHamiltionianCycle(path, 1);
+}
+
+bool AI_Module::PathFinder::findHamiltionianCycle(std::vector<Node> path, int pos) {
+	//note: the map can be seen as a graph.
+	//each location is a node, and the operation needed to move is a vertex
+	//based on this assumption, each node has 4 vertices
+	if (pos == path.size())
+		return path[path.size() - 1] == path[0];
+
+	//for each valid neghbour
+	//get neighbour nodes
+	Node* neighbour;
+	std::vector<Node> neighbours;
+	for (int i = 0; i < 4; i++)
+	{
+		switch (i)
+		{
+		case 0: //up
+			neighbour->x = path[pos - 1].x - 1;
+			neighbour->y = path[pos - 1].y;
+			break;
+		case 1: //down
+			neighbour->x = path[pos - 1].x + 1;
+			neighbour->y = path[pos - 1].y;
+			break;
+		case 2: //left
+			neighbour->x = path[pos - 1].x;
+			neighbour->y = path[pos - 1].y - 1;
+			break;
+		case 3: //right
+			neighbour->x = path[pos - 1].x;
+			neighbour->y = path[pos - 1].y + 1;
+			break;
+		default:
+			//error
+			return false;
+		}
+		neighbours.push_back(*neighbour);
+	}
+
+	//explore each neighbour
+	for (int i = 1; i < neighbours.size(); i++)
+	{
+		if (isValidStep()) {
+			//TODO
+		}
+	}
+
+	return false;
+}
+
+bool AI_Module::PathFinder::isValidStep() {
+
 }
 
 //public functions

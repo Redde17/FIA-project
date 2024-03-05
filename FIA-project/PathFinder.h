@@ -31,6 +31,11 @@ namespace AI_Module {
 			float f = 0;
 			Node* parent = NULL;
 
+			Node() {
+				x = 0;
+				y = 0;
+			}
+
 			Node(int x, int y) {
 				this->x = x;
 				this->y = y;
@@ -50,8 +55,18 @@ namespace AI_Module {
 				this->x = baseNode->h;
 				this->x = baseNode->f;
 			}
-		};
 
+			bool operator==(const Node& a) const {
+				return (x == a.x && y == a.y);
+			}
+
+			Node& operator=(const Node& a) {
+				x = a.x;
+				y = a.y;
+
+				return *this;
+			}
+		};
 
 		struct NodeComparator {
 			bool operator()(const Node& n1, const Node& n2) const;
@@ -69,7 +84,9 @@ namespace AI_Module {
 		void reconstructPath(Node* startNode);
 
 		bool algorithmAstar(std::vector<std::vector<int>> mapInstance, Node start, Node target, PathType pathType);
-
+		bool algorithHamiltonianCycle(std::vector<std::vector<int>> mapInstance, Node start);
+		bool findHamiltionianCycle(std::vector<Node> path, int pos);
+		bool isValidStep();
 	public:
 		std::stack<Action>* actionBuffer;
 		Action lastActionPerformed;
