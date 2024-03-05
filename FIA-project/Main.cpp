@@ -18,6 +18,8 @@ using std::chrono::high_resolution_clock;
 #define DATA_COLLECTION_RUN_MAX_AMOUNT 10
 #define DATA_COLLECTION_RUN_WAIT 0ms
 
+
+
 //on FULL each run will be saved and some avarage data of the whole execution
 //on SIMPLE only the avarage data of the whole execution will be saved
 #define DATA_COLLECTION_RUN_VERBOSITY SIMPLE

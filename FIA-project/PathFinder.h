@@ -5,6 +5,10 @@
 #include <queue>
 #include <list>
 
+//POSSIBLE UPDATES
+//include map access in the heuristic for the snake
+//make the snake aware of it's moving body during path finding
+//make path visualizer for the algorithm
 
 namespace AI_Module {
 
@@ -31,34 +35,11 @@ namespace AI_Module {
 			float f = 0;
 			Node* parent = NULL;
 
-			Node() {
-				x = 0;
-				y = 0;
-			}
-
-			Node(int x, int y) {
-				this->x = x;
-				this->y = y;
-			}
-
-			Node(Node* parent, int x, int y) {
-				this->parent = parent;
-				this->x = x;
-				this->y = y;
-			}
-
-			Node(Node* baseNode) {
-				this->parent = baseNode->parent;
-				this->x = baseNode->x;
-				this->x = baseNode->y;
-				this->x = baseNode->g;
-				this->x = baseNode->h;
-				this->x = baseNode->f;
-			}
-
-			bool operator==(const Node& a) const {
-				return (x == a.x && y == a.y);
-			}
+			Node();
+			Node(int x, int y);
+			Node(Node* parent, int x, int y);
+			Node(Node* baseNode);
+			bool operator==(const Node& a) const;
 		};
 
 		struct NodeComparator {
@@ -70,6 +51,7 @@ namespace AI_Module {
 		};
 
 	private:
+		std::vector<std::vector<int>> pathFinderVision;
 
 		void debug_PrintMessage(std::string msg);
 
@@ -77,9 +59,13 @@ namespace AI_Module {
 		void reconstructPath(Node* startNode);
 
 		bool algorithmAstar(std::vector<std::vector<int>> mapInstance, Node start, Node target, PathType pathType);
+		
 		bool algorithHamiltonianCycle(std::vector<std::vector<int>> mapInstance, Node start);
 		bool findHamiltionianCycle(std::vector<Node> path, int pos);
 		bool isValidStep();
+
+		void checkPathMapAccess();
+
 	public:
 		std::stack<Action>* actionBuffer;
 		Action lastActionPerformed;
@@ -88,7 +74,7 @@ namespace AI_Module {
 		~PathFinder();
 
 		bool findPath(std::vector<std::vector<int>> mapInstance, int xStart, int yStart, int xTarget, int yTarget, PathType pathType);
-
+		void drawVisualizerMap();
 	};
 
 	template<

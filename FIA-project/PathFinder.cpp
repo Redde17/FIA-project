@@ -12,6 +12,35 @@ bool AI_Module::PathFinder::InvertedNodeComparator::operator()(const Node& n1, c
 	return n1.f < n2.f;
 }
 
+AI_Module::PathFinder::Node::Node() {
+	x = 0;
+	y = 0;
+}
+
+AI_Module::PathFinder::Node::Node(int x, int y) {
+	this->x = x;
+	this->y = y;
+}
+
+AI_Module::PathFinder::Node::Node(Node* parent, int x, int y) {
+	this->parent = parent;
+	this->x = x;
+	this->y = y;
+}
+
+AI_Module::PathFinder::Node::Node(Node* baseNode) {
+	this->parent = baseNode->parent;
+	this->x = baseNode->x;
+	this->x = baseNode->y;
+	this->x = baseNode->g;
+	this->x = baseNode->h;
+	this->x = baseNode->f;
+}
+
+bool AI_Module::PathFinder::Node::operator==(const Node& a) const {
+	return (x == a.x && y == a.y);
+}
+
 void AI_Module::PathFinder::debug_PrintMessage(std::string msg) {
 	std::cout << "=== AI debug message start ===" << std::endl;
 	std::cout << msg << std::endl;
@@ -21,7 +50,6 @@ void AI_Module::PathFinder::debug_PrintMessage(std::string msg) {
 float AI_Module::PathFinder::calculateDistance(Node start, Node target) {
 	//best path possibile is the path with less steps
 	//not a diagonal but a sum of the distance on the x axis and y axis between the nodes
-
 
 	return abs(start.x - target.x) + abs(start.y - target.y);
 }
@@ -135,6 +163,7 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 			//if successor is not empty or apple then skip successor
 			if (mapInstance[successorNode->x][successorNode->y] == 0 || mapInstance[successorNode->x][successorNode->y] == 1)
 			{
+				//include in the heuristic how much map access does the node have
 				successorNode->parent = new Node(head);
 				successorNode->g = PathFinder::calculateDistance(startNode, *successorNode);
 				successorNode->h = PathFinder::calculateDistance(*successorNode, targetNode);
@@ -218,6 +247,14 @@ bool AI_Module::PathFinder::findHamiltionianCycle(std::vector<Node> path, int po
 
 bool AI_Module::PathFinder::isValidStep() {
 	return false;
+}
+
+void AI_Module::PathFinder::checkPathMapAccess() {
+	//emulate new map with proposed path
+
+	//get percentage of accessible map space for the snake
+
+	//if accessible map is less then a certain percentage find new path
 }
 
 //public functions
