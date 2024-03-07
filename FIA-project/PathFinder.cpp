@@ -1,8 +1,6 @@
 #include "PathFinder.h"
 #include "CustomPriorityQueue.h"
-
-
-
+#include <unordered_set>
 
 //private functions
 bool AI_Module::PathFinder::NodeComparator::operator()(const Node& n1, const Node& n2) const {
@@ -90,101 +88,71 @@ void AI_Module::PathFinder::reconstructPath(Node* startNode) {
 bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInstance, Node startNode, Node targetNode, PathType pathType) {
 	pathFinderVision = mapInstance;
 	
-	//CustomPriorityQueue<Node, std::vector<Node>, NodeComparator> openNodes;
 	std::deque<Node> openNodes;
 	std::vector<Node> closedNodes;
 
-	startNode.f = calculateDistance(startNode, targetNode);
-	startNode.h = PathFinder::calculateDistance(startNode, targetNode);
+	startNode.f = 0;
+	startNode.g = 0;
+	//startNode.h = startNode.f + startNode.g * WEIGHTED_CONSTANT;
 	openNodes.push_front(startNode);
 
 	while (!openNodes.empty()) {
-
 		//std::cout << "popping openNodes: (" << head.x << " , " << head.y << ") f: " << head.f << std::endl;
 		//std::cout << "start position: (" << startNode.x << " , " << startNode.y << ")" << std::endl;
 		//std::cout << "target position: (" << targetNode.x << " , " << targetNode.y << ")" << std::endl;
 
-		Node head(0, 0);
-		if (pathType == PathType::Short) {
-			head = openNodes.front();
-			openNodes.pop_front();
-		}
-		else {
-			head = openNodes.back();
-			openNodes.pop_back();
-		}
-
+		Node head = openNodes.front();
+		openNodes.pop_front();
 		closedNodes.push_back(*new Node(head));
-		//change map for visualizer
-		pathFinderVision[closedNodes.back().x][closedNodes.back().y] = VisualizerTiles::closedSet;
+
+		pathFinderVision[head.x][head.y] = VisualizerTiles::closedSet;
 
 		if (head == targetNode) {
 			reconstructPath(&head);
 			return true;
 		}
 
-		//generate successors
-		//for each successor
-		//set position
-		//check if already in openNodes
-		//set g, h, f and parent.
-		//g gets omitted from f calculation, for some reason it creates loops
+		//get neighbors
+		std::vector<Node> neighbors = {
+			{head.x - 1, head.y},
+			{head.x + 1, head.y},
+			{head.x, head.y - 1},
+			{head.x, head.y + 1}
+		};
 
-		Node* successorNode = new Node(0, 0);
-		for (int i = 0; i < 4; i++) {
-			switch (i)
-			{
-			case 0: //up
-				successorNode->x = head.x - 1;
-				successorNode->y = head.y;
-				break;
-			case 1: //down
-				successorNode->x = head.x + 1;
-				successorNode->y = head.y;
-				break;
-			case 2: //left
-				successorNode->x = head.x;
-				successorNode->y = head.y - 1;
-				break;
-			case 3: //right
-				successorNode->x = head.x;
-				successorNode->y = head.y + 1;
-				break;
-			default:
-				//error
-				return false;
-			}
-
-			//check if successor is in closedSet
-			auto findInClosedNodesResult = find_if(closedNodes.begin(), closedNodes.end(), [&successorNode](const Node& node) {
-				return *successorNode == node;
+		for (Node& neighbor : neighbors) {
+			//check if neighbor is in closedSet
+			auto it = find_if(closedNodes.begin(), closedNodes.end(), [&neighbor](const Node& node) {
+				return node.x == neighbor.x && node.y == neighbor.y;
 			});
-			if (findInClosedNodesResult != closedNodes.end()) {
+			if (it != closedNodes.end()) {
 				//element found
 				//std::cout << "successorNode found in closedSet" << std::endl;
 				continue;
 			}
 
-			//if successor is not empty or apple then skip successor
-			if (mapInstance[successorNode->x][successorNode->y] == 0 || mapInstance[successorNode->x][successorNode->y] == 1)
-			{
-				//include in the heuristic how much map access does the node have
-				successorNode->parent = new Node(head);
-				//g() is useless in this case, as each node is equally distant from each oter.
-				//so if there are two paths to the finish point, with equal h(), calculating g() will not have impact on f()
-				//successorNode->g = PathFinder::calculateDistance(startNode, *successorNode); 
-				successorNode->h = PathFinder::calculateDistance(*successorNode, targetNode);
-				successorNode->f = successorNode->h;
+			//check if neighbor is a valid tile
+			if (mapInstance[neighbor.x][neighbor.y] != 0 && mapInstance[neighbor.x][neighbor.y] != 1)
+				continue;
+			
+			//check for path cost
+			int tentativeGScore = head.g + 1; //cost is uniform for each move
 
-				auto findInOpenNodesResult = find_if(openNodes.begin(), openNodes.end(), [&successorNode](const Node& node) {
-					return node == *successorNode;
-					});
+			if (neighbor.g > tentativeGScore) {
+				//found better path
+				//std::cout << "Found better path" << std::endl;
+				neighbor.parent = new Node(head);
+				neighbor.h = PathFinder::calculateDistance(neighbor, targetNode) * WEIGHTED_CONSTANT;
+				neighbor.g = tentativeGScore;
+				neighbor.f = neighbor.h + neighbor.g;
+
+				auto findInOpenNodesResult = find_if(openNodes.begin(), openNodes.end(), [&neighbor](const Node& node) {
+					return node == neighbor;
+				});
 
 				//check if successorNode is in openNodes.
 				if (findInOpenNodesResult == openNodes.end()) {
-					//std::cout << "pushing openNodes." << i << " : (" << successorNode->x << ", " << successorNode->y << ") f : " << successorNode->f << std::endl;
-					openNodes.push_front(*successorNode);
-					//change map for visualizer
+					openNodes.push_front(neighbor);
 					pathFinderVision[openNodes.front().x][openNodes.front().y] = VisualizerTiles::openSet;
 
 					std::sort(openNodes.begin(), openNodes.end(), [](const Node& n1, const Node& n2) {
@@ -349,7 +317,7 @@ void AI_Module::PathFinder::drawVisualizerMap(sf::RenderWindow* window) {
 		}
 	}
 	window->display();
-	std::this_thread::sleep_for(20ms);
+	//std::this_thread::sleep_for(20ms);
 }
 
 AI_Module::PathFinder::PathFinder(sf::RenderWindow* window) {

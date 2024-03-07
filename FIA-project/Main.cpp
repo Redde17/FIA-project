@@ -15,7 +15,7 @@ using std::chrono::high_resolution_clock;
 #define SIMPLE 0
 
 #define DATA_COLLECTION_RUN false
-#define DATA_COLLECTION_RUN_MAX_AMOUNT 10
+#define DATA_COLLECTION_RUN_MAX_AMOUNT 100
 #define DATA_COLLECTION_RUN_WAIT 0ms
 
 
@@ -188,7 +188,7 @@ void generateAIAction(GameHandler* GH, AI_Module::PathFinder* PF, bool* snakeIsN
             totalGenerationTime += ms_double;
         }
         else {
-            //std::cout << "Snake is stuck" << std::endl;
+            std::cout << "Snake is stuck" << std::endl;
         }
     }
 }

@@ -13,6 +13,10 @@
 
 using namespace std::chrono_literals;
 
+//change this to define the weighted h() for faster A* search, must be > 1
+//note, by speeding up the search the algorithm will sacrifice some optimality in the solutione path
+#define WEIGHTED_CONSTANT 5.0f
+	
 //POSSIBLE UPDATES
 //include map access in the heuristic for the snake
 //make the snake aware of it's moving body during path finding
@@ -45,7 +49,7 @@ namespace AI_Module {
 		struct Node {
 			int x;
 			int y;
-			float g = 0;
+			float g = std::numeric_limits<int>::max();
 			float h = 0;
 			float f = 0;
 			Node* parent = NULL;
