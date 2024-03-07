@@ -56,6 +56,7 @@ float AI_Module::PathFinder::calculateDistance(Node start, Node target) {
 void AI_Module::PathFinder::reconstructPath(Node* startNode) {
 	//std::cout << "Started path reconstruction" << std::endl;
 	int x, y;
+	//std::stack<Action> localBuffer;
 
 	while (startNode->parent != NULL)
 	{
@@ -82,6 +83,7 @@ void AI_Module::PathFinder::reconstructPath(Node* startNode) {
 		startNode = startNode->parent;
 	}
 
+	//pathList.push_back(localBuffer);
 	std::cout << "Found path with [" << actionBuffer->size() << "] steps" << std::endl;
 }
 
@@ -101,14 +103,15 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 		//std::cout << "start position: (" << startNode.x << " , " << startNode.y << ")" << std::endl;
 		//std::cout << "target position: (" << targetNode.x << " , " << targetNode.y << ")" << std::endl;
 
-		Node head = openNodes.front();
-		openNodes.pop_front();
+		Node head = openNodes.back();
+		openNodes.pop_back();
 		closedNodes.push_back(*new Node(head));
 
 		pathFinderVision[head.x][head.y] = VisualizerTiles::closedSet;
 
 		if (head == targetNode) {
 			reconstructPath(&head);
+			if(closedNodes.size() == mapInstance.size() * mapInstance[0].size())
 			return true;
 		}
 
@@ -138,7 +141,8 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 			//check for path cost
 			int tentativeGScore = head.g + 1; //cost is uniform for each move
 
-			if (neighbor.g > tentativeGScore) {
+			if (neighbor.g > tentativeGScore) 
+			{
 				//found better path
 				//std::cout << "Found better path" << std::endl;
 				neighbor.parent = new Node(head);
@@ -161,7 +165,7 @@ bool AI_Module::PathFinder::algorithmAstar(std::vector<std::vector<int>> mapInst
 				}
 			}
 		}
-		drawVisualizerMap(this->window);
+		//drawVisualizerMap(this->window);
 	}
 
 	return false;
