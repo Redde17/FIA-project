@@ -2,9 +2,9 @@
 #include <SFML/Graphics.hpp>
 #include "GameHandler.h"
 
-#define MAP_X 21
-#define MAP_Y 21
-#define GRID_SIZE 30
+#define MAP_X 100
+#define MAP_Y 100
+#define GRID_SIZE 10
 
 int main() {
 	sf::RenderWindow window(sf::VideoMode(MAP_X * GRID_SIZE, MAP_Y * GRID_SIZE), "MazeAI", sf::Style::Close);
@@ -15,7 +15,17 @@ int main() {
 	std::cout << "Program start" << std::endl;
 	while (window.isOpen())
 	{
-		//draw map
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            switch (event.type) {
+            case sf::Event::Closed:
+                window.close();
+                break;
+            default:
+                break;
+            }
+        }
+
 		window.clear();
 		GH.drawMaze(&window);
 		window.display();

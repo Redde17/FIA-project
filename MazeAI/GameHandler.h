@@ -3,9 +3,11 @@
 
 #include <SFML/Graphics.hpp>
 
+#define WALL_THICKNES 1
+
 class GameHandler
 {
-	Maze* maze;
+	Maze maze;
 	int mapSizeX;
 	int mapSizeY;
 	int gridSize;
@@ -18,4 +20,3 @@ public:
 	//draw map
 	void drawMaze(sf::RenderWindow* window);
 };
-.

@@ -21,12 +21,19 @@ public:
 
 	struct Node {
 		Position pos;
+
+		bool isGameWall = false;
+		bool isExplored = false;
+		bool isStartingTile = false;
+		bool isEndingTile = false;
+
 		//in order from 0 to 3, left up right down
 		std::vector<bool> walls{true, true, true, true};
 	};
 
 	std::vector<std::vector<Node>> gameMap;
 
+	Maze();
 	Maze(const int& sizeX, const int& sizeY);
 };
 
