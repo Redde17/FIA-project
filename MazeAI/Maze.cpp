@@ -1,4 +1,5 @@
 #include "Maze.h"
+#include <iostream>
 
 Maze::Position::Position() {
 	x = 0;
@@ -8,6 +9,11 @@ Maze::Position::Position() {
 Maze::Position::Position(const int& x, const int& y) {
 	this->x = x;
 	this->y = y;
+}
+
+bool Maze::Node::operator==(const Node& node)const {
+	std::cout << "== operator" << std::endl;
+	return (pos.x == node.pos.x) && (pos.y == node.pos.y);
 }
 
 Maze::Maze(){}
@@ -43,4 +49,14 @@ Maze::Maze(const int& sizeX, const int& sizeY) {
 		gameMap[sizeX - 1][y].isExplored = true;
 	}
 
+}
+
+void Maze::setStartingNode(const Node& node) {
+	startingNode.x = node.pos.x;
+	startingNode.y = node.pos.y;
+}
+
+void Maze::setEndingNode(const Node& node) {
+	endingNode.x = node.pos.x;
+	endingNode.y = node.pos.y;
 }

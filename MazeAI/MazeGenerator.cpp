@@ -3,46 +3,39 @@
 
 //iterative implementation of the Randomized DepthFirst algorithm
 Maze MazeGenerator::generateRandomDepthFirstMaze(const int& sizeX, const int& sizeY) {
-	std::cout << "Maze generation start" << std::endl;
-	
-	srand((unsigned)time(NULL));
-
 	Maze newMaze(sizeX, sizeY);
 	std::stack<Maze::Node*> unexploredNodes;
 	Maze::Node* currentNode;
 	Maze::Node* neighborNode;
 
-	//starting cell is 1, 1
-	newMaze.gameMap[1][1].isStartingTile = true;
+	//starting node is position (1, 1)
 	newMaze.gameMap[1][1].isExplored = true;
-
-	//choose initial cell, mark it as visited and push it to the stack
 	unexploredNodes.push(&newMaze.gameMap[1][1]);
 
 	//while stack is not empty 
 	while (!unexploredNodes.empty())
 	{
-		//get current cell
+		//get current node
 		currentNode = unexploredNodes.top();
 		unexploredNodes.pop();
 
-		//get neighbor
+		//get a random neighbor of the current node
 		neighborNode = getRandomNeighbor(&newMaze, currentNode);
+
+		//if no available neighbor then skip the loop
 		if (neighborNode == NULL)
 			continue;
 
-		//Push the current cell to the stack
+		//Push the current node to the stack
 		unexploredNodes.push(currentNode);
 			
-		//Remove the wall between the current cell and the chosen cell
+		//Remove the wall between the current node and the neighbor
 		deleteWall(currentNode, neighborNode);
 
-		//Mark the chosen cell as visitedand push it to the stack
+		//Mark the neighor as visited and push it to the stack
 		neighborNode->isExplored = true;
 		unexploredNodes.push(neighborNode);
 	}
-
-	std::cout << "Maze generation done" << std::endl;
 	return newMaze;
 }
 
@@ -103,13 +96,14 @@ void MazeGenerator::deleteWall(Maze::Node* fromNode, Maze::Node* toNode) {
 }
 
 Maze MazeGenerator::generateMaze(Generators generator, const int& sizeX, const int& sizeY) {
-	switch (generator)
-	{
-	case MazeGenerator::RandomDepthFirst:
-		return generateRandomDepthFirstMaze(sizeX, sizeY);
-	default:
-		throw "generator type not defined";
+	srand((unsigned)time(NULL));
+	
+	switch (generator){
+		case MazeGenerator::RandomDepthFirst:
+			return generateRandomDepthFirstMaze(sizeX, sizeY);
+		default: {
+			throw "generator type not defined";
+			return *new Maze(0, 0);
+		}
 	}
-
-	return *new Maze(0, 0);
 }

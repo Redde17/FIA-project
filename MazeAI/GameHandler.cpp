@@ -1,5 +1,4 @@
 #include "GameHandler.h"
-#include "MazeGenerator.h"
 
 GameHandler::GameHandler(const int& mapSizeX, const int& mapSizeY, const int& gridSize) {
 	this->mapSizeX = mapSizeX;
@@ -9,6 +8,15 @@ GameHandler::GameHandler(const int& mapSizeX, const int& mapSizeY, const int& gr
 
 void GameHandler::generateNewMaze() {
 	maze = MazeGenerator::generateMaze(MazeGenerator::RandomDepthFirst, mapSizeX, mapSizeY);
+}
+
+void GameHandler::solveMaze() {
+	Maze::Node* startNode = &maze.gameMap[1][1];
+	Maze::Node* finishNode = &maze.gameMap[mapSizeX - 2][mapSizeY - 2];
+
+	maze.setStartingNode(*startNode);
+	maze.setEndingNode(*finishNode);
+	MazeSolver::findPath(MazeSolver::AStar, &maze, startNode, finishNode);
 }
 
 void GameHandler::drawMaze(sf::RenderWindow* window) {
@@ -65,5 +73,15 @@ void GameHandler::drawMaze(sf::RenderWindow* window) {
 
 		}
 	}
+
+	toBeDrawnTile->setScale(0.5f, 0.5f);
+	toBeDrawnTile->setPosition(maze.startingNode.x * gridSize, maze.startingNode.y * gridSize);
+	toBeDrawnTile->setFillColor(sf::Color::Red);
+	window->draw(*toBeDrawnTile);
+
+	toBeDrawnTile->setScale(0.5f, 0.5f);
+	toBeDrawnTile->setPosition(maze.endingNode.x * gridSize, maze.endingNode.y * gridSize);
+	toBeDrawnTile->setFillColor(sf::Color::Blue);
+	window->draw(*toBeDrawnTile);
 }
 

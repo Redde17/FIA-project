@@ -11,6 +11,7 @@ int main() {
 	GameHandler GH(MAP_X, MAP_Y, GRID_SIZE);
 
 	GH.generateNewMaze();
+	GH.solveMaze();
 
 	std::cout << "Program start" << std::endl;
 	while (window.isOpen())

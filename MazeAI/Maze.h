@@ -24,16 +24,21 @@ public:
 
 		bool isGameWall = false;
 		bool isExplored = false;
-		bool isStartingTile = false;
-		bool isEndingTile = false;
 
 		//in order from 0 to 3, left up right down
 		std::vector<bool> walls{true, true, true, true};
+
+		bool operator==(const Node& node)const;
 	};
 
 	std::vector<std::vector<Node>> gameMap;
+	Position startingNode;
+	Position endingNode;
 
 	Maze();
 	Maze(const int& sizeX, const int& sizeY);
+
+	void setStartingNode(const Node &node);
+	void setEndingNode(const Node& node);
 };
 
