@@ -12,6 +12,7 @@ int main() {
 
 	GH.generateNewMaze();
 	GH.solveMaze();
+    GH.drawMaze(&window);
 
 	std::cout << "Program start" << std::endl;
 	while (window.isOpen())
@@ -26,10 +27,6 @@ int main() {
                 break;
             }
         }
-
-		window.clear();
-		GH.drawMaze(&window);
-		window.display();
 	}
 	return 0;
 }

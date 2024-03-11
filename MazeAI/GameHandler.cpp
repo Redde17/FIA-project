@@ -1,4 +1,5 @@
 #include "GameHandler.h"
+#include <iostream>
 
 GameHandler::GameHandler(const int& mapSizeX, const int& mapSizeY, const int& gridSize) {
 	this->mapSizeX = mapSizeX;
@@ -20,6 +21,7 @@ void GameHandler::solveMaze() {
 }
 
 void GameHandler::drawMaze(sf::RenderWindow* window) {
+	window->clear();
 	sf::RectangleShape* toBeDrawnTile = NULL;
 
 	sf::RectangleShape testTile(sf::Vector2f(this->gridSize, this->gridSize));
@@ -35,6 +37,12 @@ void GameHandler::drawMaze(sf::RenderWindow* window) {
 		{
 			if (!maze.gameMap[x][y].isExplored)
 				continue;
+
+			if(maze.gameMap[x][y].isPath)
+				testTile.setFillColor(sf::Color::Green);
+			else
+				testTile.setFillColor(sf::Color::White);
+
 
 			toBeDrawnTile->setPosition(x * gridSize, y * gridSize);
 			window->draw(*toBeDrawnTile);
@@ -83,5 +91,7 @@ void GameHandler::drawMaze(sf::RenderWindow* window) {
 	toBeDrawnTile->setPosition(maze.endingNode.x * gridSize, maze.endingNode.y * gridSize);
 	toBeDrawnTile->setFillColor(sf::Color::Blue);
 	window->draw(*toBeDrawnTile);
+
+	window->display();
 }
 

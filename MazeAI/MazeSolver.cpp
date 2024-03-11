@@ -8,19 +8,24 @@ bool MazeSolver::Comparator::operator()(Maze::Node* leftNode, Maze::Node* rightN
 	return score.at(leftNode) > score.at(rightNode);
 }
 
-std::vector<Maze::Node*> MazeSolver::aStarAlgorithm(Maze* maze, Maze::Node* start, Maze::Node* target) {
+std::stack<Maze::Node*> MazeSolver::aStarAlgorithm(Maze* maze, Maze::Node* start, Maze::Node* target) {
 	std::map<Maze::Node*, Maze::Node*> cameFrom;
 	std::map<Maze::Node*, float> gScore;
 	std::map<Maze::Node*, float> fScore;
-
-	//Comparator comparator(fScore);
-	//std::priority_queue<Maze::Node*, std::vector<Maze::Node*>, Comparator> openNodes(comparator);
-
 	std::vector<Maze::Node*> openNodes;
+
+	//maps inizializations
+	for (int x = 0; x < maze->gameMap.size(); x++){
+		for (int y = 0; y < maze->gameMap[x].size(); y++){
+			gScore[&maze->gameMap[x][y]] = std::numeric_limits<int>::max();
+			fScore[&maze->gameMap[x][y]] = std::numeric_limits<int>::max();
+		}
+	}
 
 	openNodes.push_back(start);
 	gScore[start] = 0;
 	fScore[start] = getStraighLineDistance(start, target);
+	cameFrom[start] = NULL;
 
 	auto minComparator = [&fScore](Maze::Node* n1, Maze::Node* n2) {
 		return fScore.at(n1) < fScore.at(n2);
@@ -34,15 +39,12 @@ std::vector<Maze::Node*> MazeSolver::aStarAlgorithm(Maze* maze, Maze::Node* star
 		openNodes.erase(minNoteIt);
 
 		//if current node is goal then reconstruct path
-		if (currentNode == target) {
-			std::cout << "Path found" << std::endl;
-			return std::vector<Maze::Node*>();
-			//return recostructPath();
-		}
+		if (currentNode == target) 
+			return recostructPath(&cameFrom, currentNode);
 
 		//get neighbors
 		std::vector<Maze::Node*> neighbors = getNeighbours(maze, currentNode);
-		std::cout << "found ["<< neighbors.size() <<"] neighbors" << std::endl;
+		//std::cout << "found ["<< neighbors.size() <<"] neighbors" << std::endl;
 
 		//for each neighbor check for score and add in openSet if not present
 		for (Maze::Node* neighbor : neighbors) {
@@ -55,15 +57,12 @@ std::vector<Maze::Node*> MazeSolver::aStarAlgorithm(Maze* maze, Maze::Node* star
 				auto findComparator = [&neighbor](const Maze::Node* openNode) {
 					return neighbor == openNode;
 				};
-				if (std::find_if(openNodes.begin(), openNodes.end(), findComparator) != openNodes.end()) {
-					std::cout << "Not found node in openNodes, pushing" << std::endl;
+				if (std::find_if(openNodes.begin(), openNodes.end(), findComparator) == openNodes.end())
 					openNodes.push_back(neighbor);
-				}
 			}
 		}
-		std::cout << "A* working" << std::endl;
 	}
-	return std::vector<Maze::Node*>();
+	return std::stack<Maze::Node*>();
 }
 
 std::vector<Maze::Node*> MazeSolver::getNeighbours(Maze* maze, Maze::Node* currentNode) {
@@ -84,6 +83,18 @@ std::vector<Maze::Node*> MazeSolver::getNeighbours(Maze* maze, Maze::Node* curre
 	return neighbours;
 }
 
+std::stack<Maze::Node*> MazeSolver::recostructPath(std::map<Maze::Node*, Maze::Node*>* cameFrom, Maze::Node* reachedNode) {
+	std::stack<Maze::Node*> path;
+	Maze::Node* currentNodeOnPath = reachedNode;
+	while (currentNodeOnPath != NULL) {
+		path.push(currentNodeOnPath);
+		currentNodeOnPath->isPath = true;
+		currentNodeOnPath = cameFrom->at(currentNodeOnPath);
+	}
+
+	return path;
+}
+
 float MazeSolver::getStraighLineDistance(Maze::Node* start, Maze::Node* target) {
 	float xDiff = abs(start->pos.x - target->pos.x);
 	float yDiff = abs(start->pos.y - target->pos.y);
@@ -91,13 +102,13 @@ float MazeSolver::getStraighLineDistance(Maze::Node* start, Maze::Node* target) 
 	return sqrt(pow(xDiff, 2) + pow(yDiff, 2));
 }
 
-std::vector<Maze::Node*> MazeSolver::findPath(PathFinders algorithm, Maze* maze, Maze::Node* start, Maze::Node* target) {
+std::stack<Maze::Node*> MazeSolver::findPath(PathFinders algorithm, Maze* maze, Maze::Node* start, Maze::Node* target) {
 	switch (algorithm){
 		case MazeSolver::AStar:
 			return aStarAlgorithm(maze, start, target);
 		default: {
 			throw "Path finder algorithm type not defined";
-			return std::vector<Maze::Node*>();
+			return std::stack<Maze::Node*>();
 		}
 	}
 }

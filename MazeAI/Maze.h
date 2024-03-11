@@ -20,13 +20,12 @@ public:
 	};
 
 	struct Node {
+		//in order from 0 to 3, left up right down
+		std::vector<bool> walls{ true, true, true, true };
 		Position pos;
-
 		bool isGameWall = false;
 		bool isExplored = false;
-
-		//in order from 0 to 3, left up right down
-		std::vector<bool> walls{true, true, true, true};
+		bool isPath = false;
 
 		bool operator==(const Node& node)const;
 	};
