@@ -42,7 +42,7 @@ std::stack<Maze::Node*> MazeSolver::aStarAlgorithm(Maze* maze, Maze::Node* start
 		nodeExplored++;
 
 		//Set for drawing visited nodes
-		//currentNode->hasBeenVisited = true;
+		currentNode->hasBeenVisited = true;
 
 		//if current node is goal then reconstruct path
 		if (currentNode == target) {

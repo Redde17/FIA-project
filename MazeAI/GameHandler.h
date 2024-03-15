@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Maze.h"
 
-#define WALL_THICKNES 1.5f
+#define WALL_THICKNES 1
 
 class MazeGenerator;
 class MazeSolver;

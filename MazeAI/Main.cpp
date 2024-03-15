@@ -9,9 +9,9 @@ using namespace std::chrono_literals;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
 
-#define MAP_X 150
-#define MAP_Y 72
-#define GRID_SIZE 15
+#define MAP_X 200
+#define MAP_Y 100
+#define GRID_SIZE 10
 
 int main() {
     srand((unsigned)time(NULL));
@@ -20,6 +20,8 @@ int main() {
     int runs = 0;
     duration<double, std::milli> mazeGenerationTime = mazeGenerationTime.zero();
     duration<double, std::milli> mazePathFindingTime = mazePathFindingTime.zero();
+
+    std::cout << "Program start" << std::endl;
 
     auto t1 = high_resolution_clock::now();
     GH.generateNewMaze();
@@ -46,16 +48,9 @@ int main() {
     std::cout << "Draw time: " << ms_double.count() << "ms\n";
     runs++;
 
-
     std::cout << "Avg time for [" << runs << "] runs" << std::endl;
     std::cout << "Avg generation time: " << mazeGenerationTime.count() / runs << std::endl;
     std::cout << "Avg pathFinding time: " << mazePathFindingTime.count() / runs << std::endl;
-
-    std::cout << "\n=============\n";
-    if (runs == 500)
-        GH.window->close();
-
-	std::cout << "Program start" << std::endl;
 
 	while (GH.window->isOpen())
 	{
