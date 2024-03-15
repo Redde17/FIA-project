@@ -49,7 +49,7 @@ int main() {
 
     std::cout << "Avg time for [" << runs << "] runs" << std::endl;
     std::cout << "Avg generation time: " << mazeGenerationTime.count() / runs << std::endl;
-    std::cout << "Avg pathFingind time: " << mazePathFindingTime.count() / runs << std::endl;
+    std::cout << "Avg pathFinding time: " << mazePathFindingTime.count() / runs << std::endl;
 
     std::cout << "\n=============\n";
     if (runs == 500)
