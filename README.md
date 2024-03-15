@@ -27,6 +27,13 @@ Release:
 
 Copiare questi .dll nella cartella di build che si sta cercando di creare.
 
+## Utilizzo
+I comando da tastiera per interagire con il programma sono i seguenti:
+```
+Space:     Genera e risolve un nuovo labirinto
+G:         Genera un nuovo labirinto
+S:         Risolve l'attuale labirinto
+```
 
 ## Altro
 Per eventuali problemi di linking con la libreria SFML consultare il tutorial di introduzione della libreria: <br/>
