@@ -19,7 +19,7 @@ class MazeSolver
 	static std::stack<Maze::Node*> aStarAlgorithm(Maze* maze, Maze::Node* start, Maze::Node* target);
 	static std::vector<Maze::Node*> getNeighbours(Maze* maze, Maze::Node* currentNode);
 	static std::stack<Maze::Node*> recostructPath(std::map<Maze::Node*, Maze::Node*>* cameFrom, Maze::Node* current);
-	static float getStraighLineDistance(Maze::Node* start, Maze::Node* target);
+	static float getEuclideanDistance(Maze::Node* start, Maze::Node* target);
 
 public:
 	enum PathFinders {

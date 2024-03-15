@@ -1,8 +1,9 @@
 #include "MazeGenerator.h"
 #include <iostream>
 
+
 //iterative implementation of the Randomized DepthFirst algorithm
-Maze MazeGenerator::generateRandomDepthFirstMaze(const int& sizeX, const int& sizeY) {
+Maze MazeGenerator::generateRandomDepthFirstMaze(const int& sizeX, const int& sizeY, GameHandler& GH) {
 	Maze newMaze(sizeX, sizeY);
 	std::stack<Maze::Node*> unexploredNodes;
 	Maze::Node* currentNode;
@@ -35,6 +36,8 @@ Maze MazeGenerator::generateRandomDepthFirstMaze(const int& sizeX, const int& si
 		//Mark the neighor as visited and push it to the stack
 		neighborNode->isExplored = true;
 		unexploredNodes.push(neighborNode);
+
+		//GH.drawMaze();
 	}
 	return newMaze;
 }
@@ -95,12 +98,10 @@ void MazeGenerator::deleteWall(Maze::Node* fromNode, Maze::Node* toNode) {
 		throw "Maze generation unable to delete wall";
 }
 
-Maze MazeGenerator::generateMaze(Generators generator, const int& sizeX, const int& sizeY) {
-	srand((unsigned)time(NULL));
-	
+Maze MazeGenerator::generateMaze(Generators generator, const int& sizeX, const int& sizeY, GameHandler& GH) {	
 	switch (generator){
 		case MazeGenerator::RandomDepthFirst:
-			return generateRandomDepthFirstMaze(sizeX, sizeY);
+			return generateRandomDepthFirstMaze(sizeX, sizeY, GH);
 		default: {
 			throw "generator type not defined";
 			return *new Maze(0, 0);

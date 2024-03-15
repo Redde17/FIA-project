@@ -24,8 +24,13 @@ public:
 		std::vector<bool> walls{ true, true, true, true };
 		Position pos;
 		bool isGameWall = false;
+
+		//generation variables
 		bool isExplored = false;
+
+		//Search variables
 		bool isPath = false;
+		bool hasBeenVisited = false;
 
 		bool operator==(const Node& node)const;
 	};
