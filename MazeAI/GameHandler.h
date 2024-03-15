@@ -1,12 +1,11 @@
 #pragma once
-
-#include "Maze.h"
-#include "MazeGenerator.h"
-#include "MazeSolver.h"
-
 #include <SFML/Graphics.hpp>
+#include "Maze.h"
 
 #define WALL_THICKNES 1
+
+class MazeGenerator;
+class MazeSolver;
 
 class GameHandler
 {
@@ -16,11 +15,13 @@ class GameHandler
 	int gridSize;
 
 public:
+	sf::RenderWindow* window;
+
 	GameHandler(const int& mapSizeX, const int& mapSizeY, const int& gridSize);
 
 	void generateNewMaze();
 	void solveMaze();
 
 	//draw map
-	void drawMaze(sf::RenderWindow* window);
+	void drawMaze();
 };

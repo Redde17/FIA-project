@@ -14,6 +14,8 @@ std::stack<Maze::Node*> MazeSolver::aStarAlgorithm(Maze* maze, Maze::Node* start
 	std::map<Maze::Node*, float> fScore;
 	std::vector<Maze::Node*> openNodes;
 
+	int nodeExplored = 0;
+
 	//maps inizializations
 	for (int x = 0; x < maze->gameMap.size(); x++){
 		for (int y = 0; y < maze->gameMap[x].size(); y++){
@@ -24,7 +26,7 @@ std::stack<Maze::Node*> MazeSolver::aStarAlgorithm(Maze* maze, Maze::Node* start
 
 	openNodes.push_back(start);
 	gScore[start] = 0;
-	fScore[start] = getStraighLineDistance(start, target);
+	fScore[start] = getEuclideanDistance(start, target);
 	cameFrom[start] = NULL;
 
 	auto minComparator = [&fScore](Maze::Node* n1, Maze::Node* n2) {
@@ -37,14 +39,19 @@ std::stack<Maze::Node*> MazeSolver::aStarAlgorithm(Maze* maze, Maze::Node* start
 		auto minNoteIt = std::min_element(openNodes.begin(), openNodes.end(), minComparator);
 		currentNode = *minNoteIt;
 		openNodes.erase(minNoteIt);
+		nodeExplored++;
+
+		//Set for drawing visited nodes
+		currentNode->hasBeenVisited = true;
 
 		//if current node is goal then reconstruct path
-		if (currentNode == target) 
+		if (currentNode == target) {
+			std::cout << "nodeExplored value: " << nodeExplored << std::endl;
 			return recostructPath(&cameFrom, currentNode);
+		}
 
 		//get neighbors
 		std::vector<Maze::Node*> neighbors = getNeighbours(maze, currentNode);
-		//std::cout << "found ["<< neighbors.size() <<"] neighbors" << std::endl;
 
 		//for each neighbor check for score and add in openSet if not present
 		for (Maze::Node* neighbor : neighbors) {
@@ -52,7 +59,7 @@ std::stack<Maze::Node*> MazeSolver::aStarAlgorithm(Maze* maze, Maze::Node* start
 			if (tentativeNeighborGscore < gScore[neighbor]) {
 				cameFrom[neighbor] = currentNode;
 				gScore[neighbor] = tentativeNeighborGscore;
-				fScore[neighbor] = tentativeNeighborGscore + getStraighLineDistance(neighbor, target);
+				fScore[neighbor] = tentativeNeighborGscore + getEuclideanDistance(neighbor, target);
 				
 				auto findComparator = [&neighbor](const Maze::Node* openNode) {
 					return neighbor == openNode;
@@ -62,6 +69,7 @@ std::stack<Maze::Node*> MazeSolver::aStarAlgorithm(Maze* maze, Maze::Node* start
 			}
 		}
 	}
+
 	return std::stack<Maze::Node*>();
 }
 
@@ -95,7 +103,7 @@ std::stack<Maze::Node*> MazeSolver::recostructPath(std::map<Maze::Node*, Maze::N
 	return path;
 }
 
-float MazeSolver::getStraighLineDistance(Maze::Node* start, Maze::Node* target) {
+float MazeSolver::getEuclideanDistance(Maze::Node* start, Maze::Node* target) {
 	float xDiff = abs(start->pos.x - target->pos.x);
 	float yDiff = abs(start->pos.y - target->pos.y);
 

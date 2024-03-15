@@ -1,14 +1,18 @@
 #include "GameHandler.h"
+#include "MazeGenerator.h"
+#include "MazeSolver.h"
+
 #include <iostream>
 
 GameHandler::GameHandler(const int& mapSizeX, const int& mapSizeY, const int& gridSize) {
+	this->window = new sf::RenderWindow(sf::VideoMode(mapSizeX * gridSize, mapSizeY * gridSize), "MazeAI", sf::Style::Close);
 	this->mapSizeX = mapSizeX;
 	this->mapSizeY = mapSizeY;
 	this->gridSize = gridSize;
 }
 
 void GameHandler::generateNewMaze() {
-	maze = MazeGenerator::generateMaze(MazeGenerator::RandomDepthFirst, mapSizeX, mapSizeY);
+	maze = MazeGenerator::generateMaze(MazeGenerator::RandomDepthFirst, mapSizeX, mapSizeY, *this);
 }
 
 void GameHandler::solveMaze() {
@@ -20,7 +24,7 @@ void GameHandler::solveMaze() {
 	MazeSolver::findPath(MazeSolver::AStar, &maze, startNode, finishNode);
 }
 
-void GameHandler::drawMaze(sf::RenderWindow* window) {
+void GameHandler::drawMaze() {
 	window->clear();
 	sf::RectangleShape* toBeDrawnTile = NULL;
 
@@ -40,6 +44,8 @@ void GameHandler::drawMaze(sf::RenderWindow* window) {
 
 			if(maze.gameMap[x][y].isPath)
 				testTile.setFillColor(sf::Color::Green);
+			else if(maze.gameMap[x][y].hasBeenVisited)
+				testTile.setFillColor(sf::Color::Cyan);
 			else
 				testTile.setFillColor(sf::Color::White);
 
